@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Define your models based on your application needs
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  isAdmin   Boolean  @default(false)
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sites     Site[]
+  tickets   Ticket[]
+  editRequests EditRequest[]
+}
+
+model Site {
+  id          String   @id @default(uuid())
+  siteName    String
+  domain      String?
+  stage       String   @default("requirements")
+  progress    Int      @default(0)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tickets     Ticket[]
+  editRequests EditRequest[]
+}
+
+model Ticket {
+  id          String   @id @default(uuid())
+  subject     String
+  description String
+  status      String   @default("open")
+  priority    String   @default("medium")
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  siteId      String?
+  site        Site?    @relation(fields: [siteId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model EditRequest {
+  id          String   @id @default(uuid())
+  description String
+  details     String?
+  status      String   @default("pending")
+  priority    String   @default("medium")
+  deadline    DateTime?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  siteId      String
+  site        Site     @relation(fields: [siteId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
