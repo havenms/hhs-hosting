@@ -1,6 +1,6 @@
 'use client';
 
-import { AdminDashboard } from '@/components/admin-dashboard';
+import { AdminDashboard } from '@/components/admin/dashboard'; // Updated import path
 
 export default function AdminPage() {
 	// No auth checks here - let the layout handle it

@@ -1,14 +1,13 @@
 // src/app/api/users/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
-import prisma from '@/lib/prisma';
 import { createClerkClient } from '@clerk/backend';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
 	try {
-		// Switch to getAuth and pass the request explicitly
+		// Get auth from request
 		const { userId } = getAuth(request);
-
 		console.log('API Route - Auth userId with request:', userId);
 
 		if (!userId) {
@@ -18,55 +17,67 @@ export async function GET(request: NextRequest) {
 			);
 		}
 
-		// Create a direct instance of Clerk client instead of using the imported one
-		const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+		// Create Clerk client
+		const clerk = createClerkClient({
+			secretKey: process.env.CLERK_SECRET_KEY,
+		});
 
-		// Get user data from Clerk
-		try {
-			const adminUser = await clerk.users.getUser(userId);
-			console.log('API Route - User metadata:', adminUser.publicMetadata);
+		// Get admin user
+		const adminUser = await clerk.users.getUser(userId);
+		console.log('API Route - User metadata:', adminUser.publicMetadata);
 
-			const isAdmin =
-				adminUser.publicMetadata?.role === 'admin' ||
-				adminUser.publicMetadata?.isAdmin === true;
+		// Check if admin
+		const isAdmin =
+			adminUser.publicMetadata?.role === 'admin' ||
+			adminUser.publicMetadata?.isAdmin === true;
 
-			if (!isAdmin) {
-				return NextResponse.json(
-					{ error: 'Forbidden' },
-					{ status: 403 }
-				);
-			}
+		if (!isAdmin) {
+			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+		}
 
-			// Get all users from Clerk
-			const { data: clerkUsers } = await clerk.users.getUserList();
+		// Get all users from Clerk
+		const { data: clerkUsers } = await clerk.users.getUserList();
 
-			// Map to the format your frontend expects
-			const users = clerkUsers.map((clerkUser) => ({
+		// Get users from database with fixed query
+		const dbUsers = await prisma.user.findMany({
+			include: {
+				sites: true,
+				tickets: true, // Include all tickets
+				editRequests: true, // Include all edit requests
+				billingHistory: true,
+			},
+		});
+
+		// Combine data from Clerk and your database
+		const users = clerkUsers.map((clerkUser) => {
+			const dbUser = dbUsers.find((u) => u.id === clerkUser.id);
+
+			return {
 				id: clerkUser.id,
 				name:
-					clerkUser.firstName && clerkUser.lastName
-						? `${clerkUser.firstName} ${clerkUser.lastName}`
-						: clerkUser.username ||
-						  clerkUser.emailAddresses[0]?.emailAddress ||
-						  'No Name',
+					`${clerkUser.firstName || ''} ${
+						clerkUser.lastName || ''
+					}`.trim() ||
+					clerkUser.emailAddresses[0]?.emailAddress.split('@')[0] ||
+					'No Name',
 				email: clerkUser.emailAddresses[0]?.emailAddress || '',
+				signupDate: clerkUser.createdAt,
+				status: dbUser?.status || 'active',
+				sites: dbUser?.sites?.length || 0,
+				tickets: dbUser?.tickets?.length || 0,
+				editRequests: dbUser?.editRequests?.length || 0,
+				phone: dbUser?.phoneNumber || '',
+				company: dbUser?.company || '',
+				plan: dbUser?.plan || '',
+				nextBillingDate: dbUser?.nextBillingDate || null,
+				paymentMethod: dbUser?.paymentMethod || '',
+				billingHistory: dbUser?.billingHistory || [],
 				isAdmin: clerkUser.publicMetadata?.isAdmin === true,
 				role: clerkUser.publicMetadata?.role || 'user',
-				_count: {
-					sites: 0,
-					tickets: 0,
-					editRequests: 0,
-				},
-			}));
+			};
+		});
 
-			return NextResponse.json(users);
-		} catch (clerkError) {
-			console.error('Clerk API error:', clerkError);
-			return NextResponse.json(
-				{ error: 'Failed to access user data' },
-				{ status: 500 }
-			);
-		}
+		return NextResponse.json(users);
 	} catch (error) {
 		console.error('Failed to fetch users:', error);
 		return NextResponse.json(

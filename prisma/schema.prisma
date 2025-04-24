@@ -15,55 +15,98 @@ datasource db {
 
 // Define your models based on your application needs
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  isAdmin   Boolean  @default(false)
-  role      String   @default("user")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  sites     Site[]
-  tickets   Ticket[]
-  editRequests EditRequest[]
+  id              String          @id
+  name            String?
+  email           String?         @unique
+  isAdmin         Boolean         @default(false)
+  role            String          @default("user")
+  sites           Site[]
+  tickets         Ticket[]
+  editRequests    EditRequest[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  plan            String?
+  company         String?
+  phoneNumber     String?
+  paymentMethod   String?
+  nextBillingDate DateTime?
+  billingHistory  BillingRecord[]
 }
 
 model Site {
-  id          String   @id @default(uuid())
-  siteName    String
-  domain      String?
-  stage       String   @default("requirements")
-  progress    Int      @default(0)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  tickets     Ticket[]
-  editRequests EditRequest[]
+  id                 String           @id @default(cuid())
+  siteName           String           // Changed from "name" to "siteName"
+  domain             String?
+  userId             String
+  user               User             @relation(fields: [userId], references: [id])
+  stage              String           @default("requirements")
+  progress           Int              @default(0)
+  startDate          DateTime         @default(now())
+  estimatedCompletion DateTime?
+  timeline           Timeline[]
+  pendingActions     PendingAction[]
+  tickets            Ticket[]         // Add this field
+  editRequests       EditRequest[]    // Add this field
+}
+
+model Timeline {
+  id             String   @id @default(cuid())
+  siteId         String
+  site           Site     @relation(fields: [siteId], references: [id])
+  stage          String
+  completed      Boolean  @default(false)
+  date           DateTime?
+  current        Boolean  @default(false)
+  estimatedCompletion DateTime?
+  notes          String?
 }
 
 model Ticket {
-  id          String   @id @default(uuid())
+  id          String    @id @default(cuid())
   subject     String
   description String
-  status      String   @default("open")
-  priority    String   @default("medium")
+  status      String    @default("open")
+  priority    String    @default("medium")
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
   siteId      String?
-  site        Site?    @relation(fields: [siteId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  site        Site?     @relation(fields: [siteId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model EditRequest {
-  id          String   @id @default(uuid())
+  id          String    @id @default(cuid())
   description String
   details     String?
-  status      String   @default("pending")
-  priority    String   @default("medium")
+  status      String    @default("pending")
+  priority    String    @default("medium")
   deadline    DateTime?
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+  siteId      String
+  site        Site      @relation(fields: [siteId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model BillingRecord {
+  id        String   @id @default(cuid())
+  amount    Float
+  type      String   // e.g., "invoice", "payment", "refund"
+  status    String   // e.g., "pending", "paid", "cancelled"
+  date      DateTime
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PendingAction {
+  id          String   @id @default(cuid())
+  description String
+  type        String   // e.g., "approval", "clientUpload", "payment"
+  dueDate     DateTime?
   siteId      String
   site        Site     @relation(fields: [siteId], references: [id])
   createdAt   DateTime @default(now())

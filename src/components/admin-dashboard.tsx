@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { authFetch } from '@/lib/auth-utils';
 import Link from 'next/link';
 import {
 	Card,
@@ -50,6 +51,7 @@ import {
 	Circle,
 	MoreHorizontal,
 	PlusCircle,
+	Loader2,
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { UserNavbar } from '@/components/user-navbar';
@@ -82,494 +84,65 @@ function MoreButton() {
 	return <MoreHorizontal className='h-4 w-4' />;
 }
 
-// Extended mock data for projects with more detailed stage information
-const siteProjects = [
-	{
-		id: 'project-1',
-		clientName: 'John Smith',
-		siteName: 'Smith Creative Agency',
-		stage: 'development',
-		progress: 65,
-		startDate: '2023-05-10',
-		estimatedCompletion: '2023-06-15',
-		domain: 'smith-creative.hhshosting.com',
-		userId: 'user-1',
-		email: 'john@smithcreative.com',
-		billingPlan: 'Managed Basic',
-		timeline: [
-			{
-				stage: 'requirements',
-				completed: true,
-				date: '2023-05-12',
-				notes: 'All requirements approved',
-			},
-			{
-				stage: 'design',
-				completed: true,
-				date: '2023-05-25',
-				notes: 'Design mockups approved with minimal revisions',
-			},
-			{
-				stage: 'development',
-				completed: false,
-				date: null,
-				current: true,
-				estimatedCompletion: '2023-06-05',
-				notes: 'Homepage and about page completed',
-			},
-			{ stage: 'content', completed: false, date: null },
-			{ stage: 'testing', completed: false, date: null },
-			{
-				stage: 'launch',
-				completed: false,
-				date: null,
-				estimatedCompletion: '2023-06-15',
-			},
-		],
-		pendingActions: [
-			{
-				type: 'approval',
-				description: 'New contact page layout',
-				dueDate: '2023-05-28',
-			},
-		],
-	},
-	{
-		id: 'project-2',
-		clientName: 'Emma Wilson',
-		siteName: 'Wilson Photography',
-		stage: 'design',
-		progress: 40,
-		startDate: '2023-05-15',
-		estimatedCompletion: '2023-06-20',
-		domain: 'wilson-photo.hhshosting.com',
-		userId: 'user-2',
-		email: 'emma@wilsonphoto.com',
-		billingPlan: 'Managed Pro',
-		timeline: [
-			{
-				stage: 'requirements',
-				completed: true,
-				date: '2023-05-18',
-				notes: 'Detailed requirements gathered',
-			},
-			{
-				stage: 'design',
-				completed: false,
-				date: null,
-				current: true,
-				estimatedCompletion: '2023-06-01',
-				notes: 'Working on gallery layout revisions',
-			},
-			{ stage: 'development', completed: false, date: null },
-			{ stage: 'content', completed: false, date: null },
-			{ stage: 'testing', completed: false, date: null },
-			{
-				stage: 'launch',
-				completed: false,
-				date: null,
-				estimatedCompletion: '2023-06-20',
-			},
-		],
-		pendingActions: [
-			{
-				type: 'clientUpload',
-				description: 'Need portfolio images',
-				dueDate: '2023-05-30',
-			},
-		],
-	},
-	{
-		id: 'project-3',
-		clientName: 'David Johnson',
-		siteName: 'Johnson Consulting',
-		stage: 'requirements',
-		progress: 15,
-		startDate: '2023-05-20',
-		estimatedCompletion: '2023-06-25',
-		domain: 'johnson-consult.hhshosting.com',
-		userId: 'user-3',
-		email: 'david@johnsonconsulting.com',
-		billingPlan: 'Managed Basic',
-		timeline: [
-			{
-				stage: 'requirements',
-				completed: false,
-				date: null,
-				current: true,
-				estimatedCompletion: '2023-05-30',
-				notes: 'Initial consultation completed, waiting for brand assets',
-			},
-			{ stage: 'design', completed: false, date: null },
-			{ stage: 'development', completed: false, date: null },
-			{ stage: 'content', completed: false, date: null },
-			{ stage: 'testing', completed: false, date: null },
-			{
-				stage: 'launch',
-				completed: false,
-				date: null,
-				estimatedCompletion: '2023-06-25',
-			},
-		],
-		pendingActions: [
-			{
-				type: 'clientUpload',
-				description: 'Submit logo files',
-				dueDate: '2023-05-25',
-			},
-			{
-				type: 'clientInput',
-				description: 'Choose color scheme',
-				dueDate: '2023-05-25',
-			},
-		],
-	},
-	{
-		id: 'project-4',
-		clientName: 'Sarah Brown',
-		siteName: 'Brown Legal Services',
-		stage: 'testing',
-		progress: 85,
-		startDate: '2023-04-25',
-		estimatedCompletion: '2023-06-01',
-		domain: 'brown-legal.hhshosting.com',
-		userId: 'user-4',
-		email: 'sarah@brownlegal.com',
-		billingPlan: 'Managed Premium',
-		timeline: [
-			{
-				stage: 'requirements',
-				completed: true,
-				date: '2023-04-28',
-				notes: 'Requirements approved',
-			},
-			{
-				stage: 'design',
-				completed: true,
-				date: '2023-05-10',
-				notes: 'Design approved after 2 revision rounds',
-			},
-			{
-				stage: 'development',
-				completed: true,
-				date: '2023-05-20',
-				notes: 'All functionality implemented',
-			},
-			{
-				stage: 'content',
-				completed: true,
-				date: '2023-05-22',
-				notes: 'All content uploaded',
-			},
-			{
-				stage: 'testing',
-				completed: false,
-				date: null,
-				current: true,
-				estimatedCompletion: '2023-05-28',
-				notes: 'Mobile optimization in progress',
-			},
-			{
-				stage: 'launch',
-				completed: false,
-				date: null,
-				estimatedCompletion: '2023-06-01',
-			},
-		],
-		pendingActions: [
-			{
-				type: 'approval',
-				description: 'Final site review',
-				dueDate: '2023-05-29',
-			},
-		],
-	},
-];
-
-// Enhanced edit requests with additional details
-const editRequests = [
-	{
-		id: 'edit-1',
-		clientName: 'Michael Davis',
-		siteName: 'Davis Realty',
-		requestDate: '2023-05-22',
-		status: 'pending',
-		description: 'Update homepage banner and agent photos',
-		priority: 'medium',
-		deadline: '2023-05-30',
-		userId: 'user-5',
-		domain: 'davis-realty.hhshosting.com',
-		details:
-			'Need to replace the current homepage banner with new spring promotion. Also need to update agent photos for Smith and Jones who just joined the team.',
-		attachments: [
-			{ name: 'banner.jpg', type: 'image/jpeg', size: '2.4MB' },
-			{ name: 'agent_smith.jpg', type: 'image/jpeg', size: '1.2MB' },
-			{ name: 'agent_jones.jpg', type: 'image/jpeg', size: '1.1MB' },
-		],
-	},
-	{
-		id: 'edit-2',
-		clientName: 'Linda Miller',
-		siteName: 'Miller Design Studio',
-		requestDate: '2023-05-21',
-		status: 'in-progress',
-		description: 'Add new portfolio section and update contact form',
-		priority: 'high',
-		deadline: '2023-05-26',
-		userId: 'user-6',
-		domain: 'miller-design.hhshosting.com',
-		details:
-			'Need to add a new portfolio section for recent commercial work. Also need to update the contact form to include a project type dropdown with options for Residential, Commercial, and Industrial.',
-		attachments: [
-			{
-				name: 'portfolio_requirements.pdf',
-				type: 'application/pdf',
-				size: '1.7MB',
-			},
-		],
-		assignedTo: 'Alex Thompson',
-	},
-	{
-		id: 'edit-3',
-		clientName: 'Robert Wilson',
-		siteName: 'Wilson Photography',
-		requestDate: '2023-05-18',
-		status: 'completed',
-		description: 'Update photography gallery with new images',
-		priority: 'low',
-		deadline: '2023-05-25',
-		completedDate: '2023-05-23',
-		userId: 'user-2',
-		domain: 'wilson-photo.hhshosting.com',
-		details:
-			'Replace old gallery images with new portfolio shots from recent wedding season.',
-		attachments: [
-			{
-				name: 'gallery_update.zip',
-				type: 'application/zip',
-				size: '24.8MB',
-			},
-		],
-		assignedTo: 'Chris Wong',
-		completedBy: 'Chris Wong',
-	},
-];
-
-// Enhanced support tickets with detailed information
-const supportTickets = [
-	{
-		id: 'ticket-1',
-		clientName: 'Susan Jones',
-		siteName: 'Jones Fitness',
-		dateOpened: '2023-05-22',
-		status: 'open',
-		priority: 'high',
-		issue: 'Site loading slowly after recent update',
-		userId: 'user-7',
-		domain: 'jones-fitness.hhshosting.com',
-		description:
-			'Ever since the last update on May 21st, the site is taking around 8 seconds to load. This is significantly slower than before when it was loading in 2-3 seconds.',
-		steps: 'Issue occurs on all pages, but is most noticeable on the class schedule page with the calendar widget.',
-		browser: 'Chrome 113.0.5672.93, Firefox 113.0',
-		device: 'Desktop and Mobile',
-		attachments: [
-			{
-				name: 'slow_loading_screenshot.png',
-				type: 'image/png',
-				size: '842KB',
-			},
-		],
-	},
-	{
-		id: 'ticket-2',
-		clientName: 'Tom Harris',
-		siteName: 'Harris Plumbing',
-		dateOpened: '2023-05-19',
-		status: 'in-progress',
-		priority: 'medium',
-		issue: 'Contact form submissions not being received',
-		userId: 'user-8',
-		domain: 'harris-plumbing.hhshosting.com',
-		description:
-			'Contact form on the website appears to be working (shows success message), but we are not receiving any email notifications about new submissions.',
-		steps: 'Confirmed form submission works, but no emails are being received at info@harrisplumbing.com.',
-		assignedTo: 'Tech Support Team',
-		lastUpdated: '2023-05-23',
-		lastUpdateNote:
-			'Identified issue with email delivery service, working on fix.',
-	},
-	{
-		id: 'ticket-3',
-		clientName: 'Jane Smith',
-		siteName: 'Smith Creative Agency',
-		dateOpened: '2023-05-15',
-		status: 'closed',
-		priority: 'low',
-		issue: 'Need to add Google Analytics tracking',
-		userId: 'user-1',
-		domain: 'smith-creative.hhshosting.com',
-		description:
-			"Need help setting up Google Analytics on our website. We have created a Google Analytics 4 property but don't know how to add the tracking code.",
-		resolution:
-			'Added Google Analytics tracking code via Google Tag Manager. Also set up basic conversion tracking for contact form submissions.',
-		closedDate: '2023-05-17',
-		closedBy: 'Alex Thompson',
-	},
-];
-
-// Enhanced user information
-const users = [
-	{
-		id: 'user-1',
-		name: 'John Smith',
-		email: 'john@smithcreative.com',
-		signupDate: '2023-05-10',
-		status: 'active',
-		sites: 1,
-		phone: '(555) 123-4567',
-		company: 'Smith Creative Agency',
-		plan: 'Managed Basic',
-		nextBillingDate: '2023-06-10',
-		paymentMethod: 'Visa ending in 4242',
-		billingHistory: [
-			{
-				id: 'inv-1001',
-				date: '2023-05-10',
-				amount: 99.0,
-				type: 'Setup Fee',
-				status: 'paid',
-			},
-			{
-				id: 'inv-1045',
-				date: '2023-05-10',
-				amount: 29.99,
-				type: 'Monthly Subscription',
-				status: 'paid',
-			},
-		],
-	},
-	{
-		id: 'user-2',
-		name: 'Emma Wilson',
-		email: 'emma@wilsonphoto.com',
-		signupDate: '2023-05-15',
-		status: 'active',
-		sites: 1,
-		phone: '(555) 987-6543',
-		company: 'Wilson Photography',
-		plan: 'Managed Pro',
-		nextBillingDate: '2023-06-15',
-		paymentMethod: 'Mastercard ending in 5678',
-		billingHistory: [
-			{
-				id: 'inv-1102',
-				date: '2023-05-15',
-				amount: 149.0,
-				type: 'Setup Fee',
-				status: 'paid',
-			},
-			{
-				id: 'inv-1123',
-				date: '2023-05-15',
-				amount: 49.99,
-				type: 'Monthly Subscription',
-				status: 'paid',
-			},
-		],
-	},
-	{
-		id: 'user-3',
-		name: 'David Johnson',
-		email: 'david@johnsonconsulting.com',
-		signupDate: '2023-05-20',
-		status: 'pending',
-		sites: 1,
-		phone: '(555) 234-5678',
-		company: 'Johnson Consulting',
-		plan: 'Managed Basic',
-		billingHistory: [],
-	},
-	{
-		id: 'user-4',
-		name: 'Sarah Brown',
-		email: 'sarah@brownlegal.com',
-		signupDate: '2023-04-25',
-		status: 'active',
-		sites: 1,
-		phone: '(555) 876-5432',
-		company: 'Brown Legal Services',
-		plan: 'Managed Premium',
-		nextBillingDate: '2023-06-25',
-		paymentMethod: 'American Express ending in 9876',
-		billingHistory: [
-			{
-				id: 'inv-985',
-				date: '2023-04-25',
-				amount: 249.0,
-				type: 'Setup Fee',
-				status: 'paid',
-			},
-			{
-				id: 'inv-1022',
-				date: '2023-05-25',
-				amount: 79.99,
-				type: 'Monthly Subscription',
-				status: 'paid',
-			},
-		],
-	},
-];
-
-// Billing plans
-const billingPlans = [
-	{
-		id: 'managed-basic',
-		name: 'Managed Basic',
-		price: 29.99,
-		setupFee: 99.0,
-		features: [
-			'1 WordPress site',
-			'5GB storage',
-			'Free SSL certificate',
-			'Basic analytics',
-			'Email support',
-			'Site edit requests (3/month)',
-		],
-	},
-	{
-		id: 'managed-pro',
-		name: 'Managed Pro',
-		price: 49.99,
-		setupFee: 149.0,
-		features: [
-			'1 WordPress site',
-			'10GB storage',
-			'Free SSL certificate',
-			'Advanced analytics',
-			'Priority email support',
-			'Site edit requests (5/month)',
-			'Monthly performance report',
-		],
-	},
-	{
-		id: 'managed-premium',
-		name: 'Managed Premium',
-		price: 79.99,
-		setupFee: 249.0,
-		features: [
-			'1 WordPress site',
-			'20GB storage',
-			'Free SSL certificate',
-			'Advanced analytics with custom goals',
-			'Priority email and phone support',
-			'Site edit requests (10/month)',
-			'Weekly performance report',
-			'SEO optimization',
-		],
-	},
-];
-
 export function AdminDashboard() {
+	// Replace static mock arrays with state variables
+	const [users, setUsers] = useState([]);
+	const [siteProjects, setSiteProjects] = useState([]);
+	const [supportTickets, setSupportTickets] = useState([]);
+	const [editRequests, setEditRequests] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
+
+	// Fetch users data
+	useEffect(() => {
+		const fetchUsers = async () => {
+			try {
+				setLoading(true);
+				const response = await authFetch('/api/users');
+
+				if (!response) {
+					throw new Error('No response from server');
+				}
+
+				const clerkUsers = await response.json();
+
+				// Map Clerk users to your expected format
+				const formattedUsers = clerkUsers.map((user) => ({
+					id: user.id,
+					name:
+						user.name ||
+						`${user.firstName || ''} ${
+							user.lastName || ''
+						}`.trim() ||
+						user.email.split('@')[0],
+					email: user.email,
+					signupDate: user.createdAt || new Date().toISOString(),
+					status: user.status || 'active',
+					sites: 0, // You can fetch this from your database
+					phone: user.phoneNumber || '',
+					company: user.company || 'Haven Media Solutions',
+					plan: user.plan || 'Managed Basic',
+					nextBillingDate: user.nextBillingDate || '',
+					paymentMethod: user.paymentMethod || '',
+					billingHistory: user.billingHistory || [],
+					role: user.role || user.publicMetadata?.role || 'user',
+					isAdmin:
+						user.isAdmin || user.publicMetadata?.isAdmin || false,
+				}));
+
+				setUsers(formattedUsers);
+				console.log('Loaded users:', formattedUsers);
+			} catch (err) {
+				console.error('Error fetching users:', err);
+				setError(err.message);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchUsers();
+	}, []);
+
 	const [activeView, setActiveView] = useState('overview');
 	const [selectedProject, setSelectedProject] = useState(null);
 	const [selectedUser, setSelectedUser] = useState(null);
@@ -599,813 +172,893 @@ export function AdminDashboard() {
 				<AdminSidebar />
 
 				<main className='flex-1 p-4 md:p-6 overflow-auto'>
-					<div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4'>
-						<h1 className='text-2xl sm:text-3xl font-bold'>
-							Admin Dashboard
-						</h1>
-						<div className='flex flex-wrap gap-2'>
-							<Button
-								variant='outline'
-								size='sm'
-							>
-								<Calendar className='h-4 w-4 mr-2' />
-								Schedule
-							</Button>
-							<Button size='sm'>
-								<FileEdit className='h-4 w-4 mr-2' />
-								New Site
-							</Button>
+					{loading ? (
+						<div className='flex items-center justify-center h-64'>
+							<Loader2 className='h-8 w-8 animate-spin text-primary' />
+							<p className='ml-2'>Loading dashboard data...</p>
 						</div>
-					</div>
-
-					{/* Statistics Cards */}
-					<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6'>
-						<DashboardCard
-							title='Projects'
-							value={siteProjects.length}
-							icon={<LayoutDashboard className='h-5 w-5' />}
-							description='Active site projects'
-							trend='+2 this month'
-							trendUp={true}
-							color='bg-blue-500'
-						/>
-						<DashboardCard
-							title='Edit Requests'
-							value={
-								editRequests.filter(
-									(req) => req.status !== 'completed'
-								).length
-							}
-							icon={<FileEdit className='h-5 w-5' />}
-							description='Pending requests'
-							trend='+5 this week'
-							trendUp={true}
-							color='bg-amber-500'
-						/>
-						<DashboardCard
-							title='Support Tickets'
-							value={
-								supportTickets.filter(
-									(ticket) => ticket.status !== 'closed'
-								).length
-							}
-							icon={<TicketCheck className='h-5 w-5' />}
-							description='Open tickets'
-							trend='-2 this week'
-							trendUp={false}
-							color='bg-green-500'
-						/>
-						<DashboardCard
-							title='Users'
-							value={users.length}
-							icon={<Users className='h-5 w-5' />}
-							description='Total users'
-							trend='+3 this month'
-							trendUp={true}
-							color='bg-purple-500'
-						/>
-					</div>
-
-					{/* Main Content Tabs */}
-					<Tabs
-						defaultValue='projects'
-						className='mb-6'
-					>
-						<TabsList className='mb-4 w-full sm:w-auto overflow-auto'>
-							<TabsTrigger value='projects'>
-								Site Projects
-							</TabsTrigger>
-							<TabsTrigger value='inbox'>
-								Unified Inbox
-							</TabsTrigger>
-							<TabsTrigger value='users'>
-								User Management
-							</TabsTrigger>
-							<TabsTrigger value='billing'>Billing</TabsTrigger>
-						</TabsList>
-
-						{/* Project Management Tab */}
-						<TabsContent
-							value='projects'
-							className='space-y-4'
-						>
-							<div className='flex flex-col sm:flex-row gap-3 justify-between'>
-								<div className='relative flex-1'>
-									<Search className='absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-									<Input
-										placeholder='Search projects...'
-										className='pl-8'
-										value={searchTerm}
-										onChange={(e) =>
-											setSearchTerm(e.target.value)
-										}
-									/>
-								</div>
-								<Select
-									value={filterStatus}
-									onValueChange={setFilterStatus}
-								>
-									<SelectTrigger className='w-full sm:w-[200px]'>
-										<SelectValue placeholder='Filter by status' />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value='all'>
-											All Stages
-										</SelectItem>
-										<SelectItem value='requirements'>
-											Requirements
-										</SelectItem>
-										<SelectItem value='design'>
-											Design
-										</SelectItem>
-										<SelectItem value='development'>
-											Development
-										</SelectItem>
-										<SelectItem value='testing'>
-											Testing
-										</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-
-							<div className='rounded-md border'>
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead>Client</TableHead>
-											<TableHead>Site</TableHead>
-											<TableHead className='hidden md:table-cell'>
-												Stage
-											</TableHead>
-											<TableHead className='hidden md:table-cell'>
-												Progress
-											</TableHead>
-											<TableHead className='hidden lg:table-cell'>
-												Est. Completion
-											</TableHead>
-											<TableHead className='hidden lg:table-cell'>
-												Pending Actions
-											</TableHead>
-											<TableHead className='text-right'>
-												Actions
-											</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{filteredProjects.map((project) => (
-											<TableRow key={project.id}>
-												<TableCell className='font-medium'>
-													{project.clientName}
-													<div className='text-xs text-muted-foreground hidden md:block'>
-														{project.email}
-													</div>
-												</TableCell>
-												<TableCell>
-													{project.siteName}
-													<div className='text-xs text-muted-foreground truncate max-w-[150px]'>
-														{project.domain}
-													</div>
-												</TableCell>
-												<TableCell className='hidden md:table-cell'>
-													<StageIndicator
-														stage={project.stage}
-													/>
-												</TableCell>
-												<TableCell className='hidden md:table-cell'>
-													<div className='flex items-center gap-2'>
-														<Progress
-															value={
-																project.progress
-															}
-															className='h-2 w-20'
-														/>
-														<span className='text-xs text-muted-foreground'>
-															{project.progress}%
-														</span>
-													</div>
-												</TableCell>
-												<TableCell className='hidden lg:table-cell'>
-													{formatDate(
-														project.estimatedCompletion
-													)}
-												</TableCell>
-												<TableCell className='hidden lg:table-cell'>
-													{project.pendingActions &&
-													project.pendingActions
-														.length > 0 ? (
-														<Badge
-															variant='outline'
-															className='bg-amber-100 text-amber-800 hover:bg-amber-100 border-amber-200'
-														>
-															{
-																project
-																	.pendingActions
-																	.length
-															}{' '}
-															action
-															{project
-																.pendingActions
-																.length > 1
-																? 's'
-																: ''}
-														</Badge>
-													) : (
-														<Badge
-															variant='outline'
-															className='bg-green-100 text-green-800 hover:bg-green-100 border-green-200'
-														>
-															None
-														</Badge>
-													)}
-												</TableCell>
-												<TableCell className='text-right'>
-													<Sheet>
-														<SheetTrigger asChild>
-															<Button
-																size='sm'
-																variant='ghost'
-																className='gap-1'
-																onClick={() =>
-																	setSelectedProject(
-																		project
-																	)
-																}
-															>
-																<span className='sr-only md:not-sr-only md:inline-block'>
-																	Manage
-																</span>
-																<ChevronRight className='h-4 w-4' />
-															</Button>
-														</SheetTrigger>
-														<SheetContent className='w-full sm:max-w-xl overflow-auto'>
-															{/* Project Detail View */}
-															<ProjectDetailView
-																project={
-																	project
-																}
-																onClose={() =>
-																	setSelectedProject(
-																		null
-																	)
-																}
-															/>
-														</SheetContent>
-													</Sheet>
-												</TableCell>
-											</TableRow>
-										))}
-									</TableBody>
-								</Table>
-							</div>
-						</TabsContent>
-
-						{/* Unified Inbox Tab */}
-						<TabsContent
-							value='inbox'
-							className='space-y-4'
-						>
-							<div className='flex flex-col sm:flex-row gap-3 justify-between'>
-								<div className='relative flex-1'>
-									<Search className='absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-									<Input
-										placeholder='Search inbox...'
-										className='pl-8'
-									/>
-								</div>
-								<div className='flex gap-2'>
-									<Select defaultValue='all'>
-										<SelectTrigger className='w-full sm:w-[180px]'>
-											<SelectValue placeholder='All requests' />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value='all'>
-												All requests
-											</SelectItem>
-											<SelectItem value='edit'>
-												Edit requests
-											</SelectItem>
-											<SelectItem value='support'>
-												Support tickets
-											</SelectItem>
-											<SelectItem value='demo'>
-												Demo requests
-											</SelectItem>
-										</SelectContent>
-									</Select>
+					) : error ? (
+						<div className='p-4 border border-red-200 bg-red-50 rounded-md'>
+							<h3 className='text-red-700 font-medium'>
+								Error loading data
+							</h3>
+							<p className='text-red-600'>{error}</p>
+						</div>
+					) : (
+						<>
+							<div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4'>
+								<h1 className='text-2xl sm:text-3xl font-bold'>
+									Admin Dashboard
+								</h1>
+								<div className='flex flex-wrap gap-2'>
 									<Button
-										size='icon'
 										variant='outline'
+										size='sm'
 									>
-										<Filter className='h-4 w-4' />
+										<Calendar className='h-4 w-4 mr-2' />
+										Schedule
+									</Button>
+									<Button size='sm'>
+										<FileEdit className='h-4 w-4 mr-2' />
+										New Site
 									</Button>
 								</div>
 							</div>
 
-							{/* Unified Inbox Content */}
-							<UnifiedInboxView
-								editRequests={editRequests}
-								supportTickets={supportTickets}
-							/>
-						</TabsContent>
-
-						{/* User Management Tab */}
-						<TabsContent
-							value='users'
-							className='space-y-4'
-						>
-							<div className='flex flex-col sm:flex-row gap-3 justify-between'>
-								<div className='relative flex-1'>
-									<Search className='absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-									<Input
-										placeholder='Search users...'
-										className='pl-8'
-									/>
-								</div>
-								<Select defaultValue='all'>
-									<SelectTrigger className='w-full sm:w-[180px]'>
-										<SelectValue placeholder='All users' />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value='all'>
-														All users
-										</SelectItem>
-										<SelectItem value='active'>
-											Active
-										</SelectItem>
-										<SelectItem value='pending'>
-											Pending
-										</SelectItem>
-										<SelectItem value='inactive'>
-											Inactive
-										</SelectItem>
-									</SelectContent>
-								</Select>
+							{/* Statistics Cards */}
+							<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6'>
+								<DashboardCard
+									title='Projects'
+									value={siteProjects.length}
+									icon={
+										<LayoutDashboard className='h-5 w-5' />
+									}
+									description='Active site projects'
+									trend='+2 this month'
+									trendUp={true}
+									color='bg-blue-500'
+								/>
+								<DashboardCard
+									title='Edit Requests'
+									value={
+										editRequests.filter(
+											(req) => req.status !== 'completed'
+										).length
+									}
+									icon={<FileEdit className='h-5 w-5' />}
+									description='Pending requests'
+									trend='+5 this week'
+									trendUp={true}
+									color='bg-amber-500'
+								/>
+								<DashboardCard
+									title='Support Tickets'
+									value={
+										supportTickets.filter(
+											(ticket) =>
+												ticket.status !== 'closed'
+										).length
+									}
+									icon={<TicketCheck className='h-5 w-5' />}
+									description='Open tickets'
+									trend='-2 this week'
+									trendUp={false}
+									color='bg-green-500'
+								/>
+								<DashboardCard
+									title='Users'
+									value={users.length}
+									icon={<Users className='h-5 w-5' />}
+									description='Total users'
+									trend='+3 this month'
+									trendUp={true}
+									color='bg-purple-500'
+								/>
 							</div>
 
-							<div className='rounded-md border'>
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead>Name</TableHead>
-											<TableHead className='hidden md:table-cell'>
-												Email
-											</TableHead>
-											<TableHead className='hidden md:table-cell'>
-												Status
-											</TableHead>
-											<TableHead className='hidden lg:table-cell'>
-												Signup Date
-											</TableHead>
-											<TableHead className='hidden lg:table-cell'>
-												Plan
-											</TableHead>
-											<TableHead className='text-right'>
-												Actions
-											</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{users.map((user) => (
-											<TableRow key={user.id}>
-												<TableCell className='font-medium'>
-													{user.name}
-													{user.company && (
-														<div className='text-xs text-muted-foreground'>
-															{user.company}
-														</div>
-													)}
-												</TableCell>
-												<TableCell className='hidden md:table-cell'>
-													{user.email}
-												</TableCell>
-												<TableCell className='hidden md:table-cell'>
-													<UserStatusBadge
-														status={user.status}
-													/>
-												</TableCell>
-												<TableCell className='hidden lg:table-cell'>
-													{formatDate(
-														user.signupDate
-													)}
-												</TableCell>
-												<TableCell className='hidden lg:table-cell'>
-													{user.plan || 'None'}
-												</TableCell>
-												<TableCell className='text-right'>
-													<Sheet>
-														<SheetTrigger asChild>
-															<Button
-																size='sm'
-																variant='ghost'
-																className='gap-1'
-																onClick={() =>
-																	setSelectedUser(
-																		user
-																	)
+							{/* Main Content Tabs */}
+							<Tabs
+								defaultValue='projects'
+								className='mb-6'
+							>
+								<TabsList className='mb-4 w-full sm:w-auto overflow-auto'>
+									<TabsTrigger value='projects'>
+										Site Projects
+									</TabsTrigger>
+									<TabsTrigger value='inbox'>
+										Unified Inbox
+									</TabsTrigger>
+									<TabsTrigger value='users'>
+										User Management
+									</TabsTrigger>
+									<TabsTrigger value='billing'>
+										Billing
+									</TabsTrigger>
+								</TabsList>
+
+								{/* Project Management Tab */}
+								<TabsContent
+									value='projects'
+									className='space-y-4'
+								>
+									<div className='flex flex-col sm:flex-row gap-3 justify-between'>
+										<div className='relative flex-1'>
+											<Search className='absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+											<Input
+												placeholder='Search projects...'
+												className='pl-8'
+												value={searchTerm}
+												onChange={(e) =>
+													setSearchTerm(
+														e.target.value
+													)
+												}
+											/>
+										</div>
+										<Select
+											value={filterStatus}
+											onValueChange={setFilterStatus}
+										>
+											<SelectTrigger className='w-full sm:w-[200px]'>
+												<SelectValue placeholder='Filter by status' />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value='all'>
+													All Stages
+												</SelectItem>
+												<SelectItem value='requirements'>
+													Requirements
+												</SelectItem>
+												<SelectItem value='design'>
+													Design
+												</SelectItem>
+												<SelectItem value='development'>
+													Development
+												</SelectItem>
+												<SelectItem value='testing'>
+													Testing
+												</SelectItem>
+											</SelectContent>
+										</Select>
+									</div>
+
+									<div className='rounded-md border'>
+										<Table>
+											<TableHeader>
+												<TableRow>
+													<TableHead>
+														Client
+													</TableHead>
+													<TableHead>Site</TableHead>
+													<TableHead className='hidden md:table-cell'>
+														Stage
+													</TableHead>
+													<TableHead className='hidden md:table-cell'>
+														Progress
+													</TableHead>
+													<TableHead className='hidden lg:table-cell'>
+														Est. Completion
+													</TableHead>
+													<TableHead className='hidden lg:table-cell'>
+														Pending Actions
+													</TableHead>
+													<TableHead className='text-right'>
+														Actions
+													</TableHead>
+												</TableRow>
+											</TableHeader>
+											<TableBody>
+												{filteredProjects.map(
+													(project) => (
+														<TableRow
+															key={project.id}
+														>
+															<TableCell className='font-medium'>
+																{
+																	project.clientName
 																}
-															>
-																<span className='sr-only md:not-sr-only md:inline-block'>
-																	Manage
-																</span>
-																<ChevronRight className='h-4 w-4' />
-															</Button>
-														</SheetTrigger>
-														<SheetContent className='w-full sm:max-w-xl overflow-auto'>
-															{/* User Detail View */}
-															<UserDetailView
-																user={user}
-																sites={siteProjects.filter(
-																	(project) =>
-																		project.userId ===
-																		user.id
+																<div className='text-xs text-muted-foreground hidden md:block'>
+																	{
+																		project.email
+																	}
+																</div>
+															</TableCell>
+															<TableCell>
+																{
+																	project.siteName
+																}
+																<div className='text-xs text-muted-foreground truncate max-w-[150px]'>
+																	{
+																		project.domain
+																	}
+																</div>
+															</TableCell>
+															<TableCell className='hidden md:table-cell'>
+																<StageIndicator
+																	stage={
+																		project.stage
+																	}
+																/>
+															</TableCell>
+															<TableCell className='hidden md:table-cell'>
+																<div className='flex items-center gap-2'>
+																	<Progress
+																		value={
+																			project.progress
+																		}
+																		className='h-2 w-20'
+																	/>
+																	<span className='text-xs text-muted-foreground'>
+																		{
+																			project.progress
+																		}
+																		%
+																	</span>
+																</div>
+															</TableCell>
+															<TableCell className='hidden lg:table-cell'>
+																{formatDate(
+																	project.estimatedCompletion
 																)}
-																tickets={supportTickets.filter(
-																	(ticket) =>
-																		ticket.userId ===
-																		user.id
+															</TableCell>
+															<TableCell className='hidden lg:table-cell'>
+																{project.pendingActions &&
+																project
+																	.pendingActions
+																	.length >
+																	0 ? (
+																	<Badge
+																		variant='outline'
+																		className='bg-amber-100 text-amber-800 hover:bg-amber-100 border-amber-200'
+																	>
+																		{
+																			project
+																				.pendingActions
+																				.length
+																		}{' '}
+																		action
+																		{project
+																			.pendingActions
+																			.length >
+																		1
+																			? 's'
+																			: ''}
+																	</Badge>
+																) : (
+																	<Badge
+																		variant='outline'
+																		className='bg-green-100 text-green-800 hover:bg-green-100 border-green-200'
+																	>
+																		None
+																	</Badge>
 																)}
-																editRequests={editRequests.filter(
-																	(request) =>
-																		request.userId ===
-																		user.id
-																)}
-																billingPlans={
-																	billingPlans
+															</TableCell>
+															<TableCell className='text-right'>
+																<Sheet>
+																	<SheetTrigger
+																		asChild
+																	>
+																		<Button
+																			size='sm'
+																			variant='ghost'
+																			className='gap-1'
+																			onClick={() =>
+																				setSelectedProject(
+																					project
+																				)
+																			}
+																		>
+																			<span className='sr-only md:not-sr-only md:inline-block'>
+																				Manage
+																			</span>
+																			<ChevronRight className='h-4 w-4' />
+																		</Button>
+																	</SheetTrigger>
+																	<SheetContent className='w-full sm:max-w-xl overflow-auto'>
+																		{/* Project Detail View */}
+																		<ProjectDetailView
+																			project={
+																				project
+																			}
+																			onClose={() =>
+																				setSelectedProject(
+																					null
+																				)
+																			}
+																		/>
+																	</SheetContent>
+																</Sheet>
+															</TableCell>
+														</TableRow>
+													)
+												)}
+											</TableBody>
+										</Table>
+									</div>
+								</TabsContent>
+
+								{/* Unified Inbox Tab */}
+								<TabsContent
+									value='inbox'
+									className='space-y-4'
+								>
+									<div className='flex flex-col sm:flex-row gap-3 justify-between'>
+										<div className='relative flex-1'>
+											<Search className='absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+											<Input
+												placeholder='Search inbox...'
+												className='pl-8'
+											/>
+										</div>
+										<div className='flex gap-2'>
+											<Select defaultValue='all'>
+												<SelectTrigger className='w-full sm:w-[180px]'>
+													<SelectValue placeholder='All requests' />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value='all'>
+														All requests
+													</SelectItem>
+													<SelectItem value='edit'>
+														Edit requests
+													</SelectItem>
+													<SelectItem value='support'>
+														Support tickets
+													</SelectItem>
+													<SelectItem value='demo'>
+														Demo requests
+													</SelectItem>
+												</SelectContent>
+											</Select>
+											<Button
+												size='icon'
+												variant='outline'
+											>
+												<Filter className='h-4 w-4' />
+											</Button>
+										</div>
+									</div>
+
+									{/* Unified Inbox Content */}
+									<UnifiedInboxView
+										editRequests={editRequests}
+										supportTickets={supportTickets}
+									/>
+								</TabsContent>
+
+								{/* User Management Tab */}
+								<TabsContent
+									value='users'
+									className='space-y-4'
+								>
+									<div className='flex flex-col sm:flex-row gap-3 justify-between'>
+										<div className='relative flex-1'>
+											<Search className='absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+											<Input
+												placeholder='Search users...'
+												className='pl-8'
+											/>
+										</div>
+										<Select defaultValue='all'>
+											<SelectTrigger className='w-full sm:w-[180px]'>
+												<SelectValue placeholder='All users' />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value='all'>
+													All users
+												</SelectItem>
+												<SelectItem value='active'>
+													Active
+												</SelectItem>
+												<SelectItem value='pending'>
+													Pending
+												</SelectItem>
+												<SelectItem value='inactive'>
+													Inactive
+												</SelectItem>
+											</SelectContent>
+										</Select>
+									</div>
+
+									<div className='rounded-md border'>
+										<Table>
+											<TableHeader>
+												<TableRow>
+													<TableHead>Name</TableHead>
+													<TableHead className='hidden md:table-cell'>
+														Email
+													</TableHead>
+													<TableHead className='hidden md:table-cell'>
+														Status
+													</TableHead>
+													<TableHead className='hidden lg:table-cell'>
+														Signup Date
+													</TableHead>
+													<TableHead className='hidden lg:table-cell'>
+														Plan
+													</TableHead>
+													<TableHead className='text-right'>
+														Actions
+													</TableHead>
+												</TableRow>
+											</TableHeader>
+											<TableBody>
+												{users.map((user) => (
+													<TableRow key={user.id}>
+														<TableCell className='font-medium'>
+															{user.name}
+															{user.company && (
+																<div className='text-xs text-muted-foreground'>
+																	{
+																		user.company
+																	}
+																</div>
+															)}
+														</TableCell>
+														<TableCell className='hidden md:table-cell'>
+															{user.email}
+														</TableCell>
+														<TableCell className='hidden md:table-cell'>
+															<UserStatusBadge
+																status={
+																	user.status
 																}
 															/>
-														</SheetContent>
-													</Sheet>
-												</TableCell>
-											</TableRow>
-										))}
-									</TableBody>
-								</Table>
-							</div>
-						</TabsContent>
+														</TableCell>
+														<TableCell className='hidden lg:table-cell'>
+															{formatDate(
+																user.signupDate
+															)}
+														</TableCell>
+														<TableCell className='hidden lg:table-cell'>
+															{user.plan ||
+																'None'}
+														</TableCell>
+														<TableCell className='text-right'>
+															<Sheet>
+																<SheetTrigger
+																	asChild
+																>
+																	<Button
+																		size='sm'
+																		variant='ghost'
+																		className='gap-1'
+																		onClick={() =>
+																			setSelectedUser(
+																				user
+																			)
+																		}
+																	>
+																		<span className='sr-only md:not-sr-only md:inline-block'>
+																			Manage
+																		</span>
+																		<ChevronRight className='h-4 w-4' />
+																	</Button>
+																</SheetTrigger>
+																<SheetContent className='w-full sm:max-w-xl overflow-auto'>
+																	{/* User Detail View */}
+																	<UserDetailView
+																		user={
+																			user
+																		}
+																		sites={siteProjects.filter(
+																			(
+																				project
+																			) =>
+																				project.userId ===
+																				user.id
+																		)}
+																		tickets={supportTickets.filter(
+																			(
+																				ticket
+																			) =>
+																				ticket.userId ===
+																				user.id
+																		)}
+																		editRequests={editRequests.filter(
+																			(
+																				request
+																			) =>
+																				request.userId ===
+																				user.id
+																		)}
+																		billingPlans={[]}
+																	/>
+																</SheetContent>
+															</Sheet>
+														</TableCell>
+													</TableRow>
+												))}
+											</TableBody>
+										</Table>
+									</div>
+								</TabsContent>
 
-						{/* Billing Management Tab */}
-						<TabsContent
-							value='billing'
-							className='space-y-4'
-						>
-							<div className='flex flex-col sm:flex-row gap-3 justify-between'>
-								<div className='relative flex-1'>
-									<Search className='absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-									<Input
-										placeholder='Search billing...'
-										className='pl-8'
-									/>
-								</div>
-								<Select defaultValue='all'>
-									<SelectTrigger className='w-full sm:w-[180px]'>
-										<SelectValue placeholder='All plans' />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value='all'>
-											All plans
-										</SelectItem>
-										<SelectItem value='managed-basic'>
-											Managed Basic
-										</SelectItem>
-										<SelectItem value='managed-pro'>
-											Managed Pro
-										</SelectItem>
-										<SelectItem value='managed-premium'>
-											Managed Premium
-										</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
+								{/* Billing Management Tab */}
+								<TabsContent
+									value='billing'
+									className='space-y-4'
+								>
+									<div className='flex flex-col sm:flex-row gap-3 justify-between'>
+										<div className='relative flex-1'>
+											<Search className='absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+											<Input
+												placeholder='Search billing...'
+												className='pl-8'
+											/>
+										</div>
+										<Select defaultValue='all'>
+											<SelectTrigger className='w-full sm:w-[180px]'>
+												<SelectValue placeholder='All plans' />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value='all'>
+													All plans
+												</SelectItem>
+												<SelectItem value='managed-basic'>
+													Managed Basic
+												</SelectItem>
+												<SelectItem value='managed-pro'>
+													Managed Pro
+												</SelectItem>
+												<SelectItem value='managed-premium'>
+													Managed Premium
+												</SelectItem>
+											</SelectContent>
+										</Select>
+									</div>
 
-							<div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-6'>
-								{/* Billing Overview Cards */}
+									<div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-6'>
+										{/* Billing Overview Cards */}
+										<Card>
+											<CardHeader className='pb-2'>
+												<CardTitle className='text-sm font-medium'>
+													Total Monthly Revenue
+												</CardTitle>
+											</CardHeader>
+											<CardContent>
+												<div className='text-2xl font-bold'>
+													$389.91
+												</div>
+												<p className='text-xs text-muted-foreground'>
+													From 7 active subscriptions
+												</p>
+											</CardContent>
+											<CardFooter>
+												<div className='text-xs flex items-center text-green-500'>
+													<ArrowUpRight className='h-3 w-3 mr-1' />
+													+12% from last month
+												</div>
+											</CardFooter>
+										</Card>
+
+										<Card>
+											<CardHeader className='pb-2'>
+												<CardTitle className='text-sm font-medium'>
+													Upcoming Payments
+												</CardTitle>
+											</CardHeader>
+											<CardContent>
+												<div className='text-2xl font-bold'>
+													$159.96
+												</div>
+												<p className='text-xs text-muted-foreground'>
+													Next 7 days (4 renewals)
+												</p>
+											</CardContent>
+											<CardFooter>
+												<Button
+													variant='outline'
+													size='sm'
+													className='w-full text-xs'
+												>
+													<Bell className='h-3 w-3 mr-1' />
+													View Schedule
+												</Button>
+											</CardFooter>
+										</Card>
+
+										<Card>
+											<CardHeader className='pb-2'>
+												<CardTitle className='text-sm font-medium'>
+													Plan Distribution
+												</CardTitle>
+											</CardHeader>
+											<CardContent>
+												<div className='flex justify-between items-center'>
+													<div>
+														<div className='text-sm'>
+															Basic:{' '}
+															<span className='font-bold'>
+																3
+															</span>
+														</div>
+														<div className='text-sm'>
+															Pro:{' '}
+															<span className='font-bold'>
+																2
+															</span>
+														</div>
+														<div className='text-sm'>
+															Premium:{' '}
+															<span className='font-bold'>
+																2
+															</span>
+														</div>
+													</div>
+													<div className='flex flex-col items-center gap-1'>
+														<div className='h-4 w-24 rounded-full bg-slate-200 overflow-hidden flex'>
+															<div
+																className='h-full bg-blue-500'
+																style={{
+																	width: '43%',
+																}}
+															></div>
+															<div
+																className='h-full bg-purple-500'
+																style={{
+																	width: '29%',
+																}}
+															></div>
+															<div
+																className='h-full bg-green-500'
+																style={{
+																	width: '28%',
+																}}
+															></div>
+														</div>
+														<span className='text-[10px] text-muted-foreground'>
+															Distribution
+														</span>
+													</div>
+												</div>
+											</CardContent>
+										</Card>
+									</div>
+
+									{/* User Billing List */}
+									<div className='rounded-md border'>
+										<Table>
+											<TableHeader>
+												<TableRow>
+													<TableHead>User</TableHead>
+													<TableHead>Plan</TableHead>
+													<TableHead className='hidden md:table-cell'>
+														Monthly Fee
+													</TableHead>
+													<TableHead className='hidden lg:table-cell'>
+														Next Billing
+													</TableHead>
+													<TableHead className='hidden md:table-cell'>
+														Payment Method
+													</TableHead>
+													<TableHead className='text-right'>
+														Actions
+													</TableHead>
+												</TableRow>
+											</TableHeader>
+											<TableBody>
+												{users
+													.filter((user) => user.plan)
+													.map((user) => {
+														const plan = null;
+														return (
+															<TableRow
+																key={user.id}
+															>
+																<TableCell>
+																	<div className='font-medium'>
+																		{
+																			user.name
+																		}
+																	</div>
+																	<div className='text-xs text-muted-foreground'>
+																		{
+																			user.email
+																		}
+																	</div>
+																</TableCell>
+																<TableCell>
+																	{user.plan}
+																</TableCell>
+																<TableCell className='hidden md:table-cell'>
+																	$
+																	{plan?.price?.toFixed(
+																		2
+																	)}
+																	/mo
+																</TableCell>
+																<TableCell className='hidden lg:table-cell'>
+																	{user.nextBillingDate
+																		? formatDate(
+																				user.nextBillingDate
+																		  )
+																		: '-'}
+																</TableCell>
+																<TableCell className='hidden md:table-cell text-sm'>
+																	{user.paymentMethod ||
+																		'-'}
+																</TableCell>
+																<TableCell className='text-right'>
+																	<DropdownMenu>
+																		<DropdownMenuTrigger
+																			asChild
+																		>
+																			<Button
+																				variant='ghost'
+																				size='sm'
+																			>
+																				<MoreButton />
+																			</Button>
+																		</DropdownMenuTrigger>
+																		<DropdownMenuContent align='end'>
+																			<DropdownMenuItem>
+																				<CreditCard className='mr-2 h-4 w-4' />
+																				Edit
+																				Payment
+																				Method
+																			</DropdownMenuItem>
+																			<DropdownMenuItem>
+																				<Edit className='mr-2 h-4 w-4' />
+																				Change
+																				Plan
+																			</DropdownMenuItem>
+																			<DropdownMenuSeparator />
+																			<DropdownMenuItem>
+																				<PencilLine className='mr-2 h-4 w-4' />
+																				Send
+																				Invoice
+																			</DropdownMenuItem>
+																		</DropdownMenuContent>
+																	</DropdownMenu>
+																</TableCell>
+															</TableRow>
+														);
+													})}
+											</TableBody>
+										</Table>
+									</div>
+								</TabsContent>
+							</Tabs>
+
+							{/* Overview Cards */}
+							<div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
 								<Card>
-									<CardHeader className='pb-2'>
-										<CardTitle className='text-sm font-medium'>
-											Total Monthly Revenue
+									<CardHeader>
+										<CardTitle className='flex items-center gap-2'>
+											<Calendar className='h-5 w-5 text-primary' />
+											Upcoming Projects
 										</CardTitle>
+										<CardDescription>
+											Site projects due in the next 14
+											days
+										</CardDescription>
 									</CardHeader>
-									<CardContent>
-										<div className='text-2xl font-bold'>
-											$389.91
+									<CardContent className='p-0'>
+										<div className='divide-y'>
+											{siteProjects
+												.sort(
+													(a, b) =>
+														new Date(
+															a.estimatedCompletion
+														).getTime() -
+														new Date(
+															b.estimatedCompletion
+														).getTime()
+												)
+												.slice(0, 3)
+												.map((project) => (
+													<div
+														key={project.id}
+														className='flex items-center justify-between p-4'
+													>
+														<div>
+															<p className='font-medium'>
+																{
+																	project.siteName
+																}
+															</p>
+															<p className='text-sm text-muted-foreground'>
+																{
+																	project.clientName
+																}{' '}
+																•{' '}
+																{project.stage}
+															</p>
+														</div>
+														<div className='text-right'>
+															<p className='text-sm font-medium'>
+																{formatDate(
+																	project.estimatedCompletion
+																)}
+															</p>
+															<p className='text-xs text-muted-foreground'>
+																{getDaysRemaining(
+																	project.estimatedCompletion
+																)}{' '}
+																days left
+															</p>
+														</div>
+													</div>
+												))}
 										</div>
-										<p className='text-xs text-muted-foreground'>
-											From 7 active subscriptions
-										</p>
 									</CardContent>
-									<CardFooter>
-										<div className='text-xs flex items-center text-green-500'>
-											<ArrowUpRight className='h-3 w-3 mr-1' />
-											+12% from last month
-										</div>
-									</CardFooter>
-								</Card>
-
-								<Card>
-									<CardHeader className='pb-2'>
-										<CardTitle className='text-sm font-medium'>
-											Upcoming Payments
-										</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<div className='text-2xl font-bold'>
-											$159.96
-										</div>
-										<p className='text-xs text-muted-foreground'>
-											Next 7 days (4 renewals)
-										</p>
-									</CardContent>
-									<CardFooter>
+									<CardFooter className='flex justify-center p-4'>
 										<Button
 											variant='outline'
 											size='sm'
-											className='w-full text-xs'
+											asChild
 										>
-											<Bell className='h-3 w-3 mr-1' />
-											View Schedule
+											<Link href='/admin/calendar'>
+												<Calendar className='mr-2 h-4 w-4' />
+												View Full Schedule
+											</Link>
 										</Button>
 									</CardFooter>
 								</Card>
 
 								<Card>
-									<CardHeader className='pb-2'>
-										<CardTitle className='text-sm font-medium'>
-											Plan Distribution
+									<CardHeader>
+										<CardTitle className='flex items-center gap-2'>
+											<Inbox className='h-5 w-5 text-primary' />
+											Recent User Activity
 										</CardTitle>
+										<CardDescription>
+											Latest actions across the platform
+										</CardDescription>
 									</CardHeader>
-									<CardContent>
-										<div className='flex justify-between items-center'>
-											<div>
-												<div className='text-sm'>
-													Basic:{' '}
-													<span className='font-bold'>
-														3
-													</span>
-												</div>
-												<div className='text-sm'>
-													Pro:{' '}
-													<span className='font-bold'>
-														2
-													</span>
-												</div>
-												<div className='text-sm'>
-													Premium:{' '}
-													<span className='font-bold'>
-														2
-													</span>
-												</div>
-											</div>
-											<div className='flex flex-col items-center gap-1'>
-												<div className='h-4 w-24 rounded-full bg-slate-200 overflow-hidden flex'>
-													<div
-														className='h-full bg-blue-500'
-														style={{ width: '43%' }}
-													></div>
-													<div
-														className='h-full bg-purple-500'
-														style={{ width: '29%' }}
-													></div>
-													<div
-														className='h-full bg-green-500'
-														style={{ width: '28%' }}
-													></div>
-												</div>
-												<span className='text-[10px] text-muted-foreground'>
-													Distribution
-												</span>
-											</div>
+									<CardContent className='p-0'>
+										<div className='divide-y'>
+											<ActivityItem
+												icon={
+													<FileEdit className='h-4 w-4' />
+												}
+												title='Edit request submitted'
+												description='Linda Miller requested changes to Miller Design Studio'
+												time='2 hours ago'
+											/>
+											<ActivityItem
+												icon={
+													<TicketCheck className='h-4 w-4' />
+												}
+												title='Support ticket closed'
+												description='Resolved loading issue for Jones Fitness'
+												time='5 hours ago'
+											/>
+											<ActivityItem
+												icon={
+													<User className='h-4 w-4' />
+												}
+												title='New user registered'
+												description='David Johnson created an account'
+												time='1 day ago'
+											/>
+											<ActivityItem
+												icon={
+													<CheckCircle className='h-4 w-4' />
+												}
+												title='Site launched'
+												description='Wilson Photography site is now live'
+												time='2 days ago'
+											/>
 										</div>
 									</CardContent>
+									<CardFooter className='flex justify-center p-4'>
+										<Button
+											variant='outline'
+											size='sm'
+											asChild
+										>
+											<Link href='/admin/activity'>
+												<Clock className='mr-2 h-4 w-4' />
+												View All Activity
+											</Link>
+										</Button>
+									</CardFooter>
 								</Card>
 							</div>
-
-							{/* User Billing List */}
-							<div className='rounded-md border'>
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead>User</TableHead>
-											<TableHead>Plan</TableHead>
-											<TableHead className='hidden md:table-cell'>
-												Monthly Fee
-											</TableHead>
-											<TableHead className='hidden lg:table-cell'>
-												Next Billing
-											</TableHead>
-											<TableHead className='hidden md:table-cell'>
-												Payment Method
-											</TableHead>
-											<TableHead className='text-right'>
-												Actions
-											</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{users
-											.filter((user) => user.plan)
-											.map((user) => {
-												const plan = billingPlans.find(
-													(p) => p.name === user.plan
-												);
-												return (
-													<TableRow key={user.id}>
-														<TableCell>
-															<div className='font-medium'>
-																{user.name}
-															</div>
-															<div className='text-xs text-muted-foreground'>
-																{user.email}
-															</div>
-														</TableCell>
-														<TableCell>
-															{user.plan}
-														</TableCell>
-														<TableCell className='hidden md:table-cell'>
-															$
-															{plan?.price.toFixed(
-																2
-															)}
-															/mo
-														</TableCell>
-														<TableCell className='hidden lg:table-cell'>
-															{user.nextBillingDate
-																? formatDate(
-																		user.nextBillingDate
-																  )
-																: '-'}
-														</TableCell>
-														<TableCell className='hidden md:table-cell text-sm'>
-															{user.paymentMethod ||
-																'-'}
-														</TableCell>
-														<TableCell className='text-right'>
-															<DropdownMenu>
-																<DropdownMenuTrigger
-																	asChild
-																>
-																	<Button
-																		variant='ghost'
-																		size='sm'
-																	>
-																		<MoreButton />
-																	</Button>
-																</DropdownMenuTrigger>
-																<DropdownMenuContent align='end'>
-																	<DropdownMenuItem>
-																		<CreditCard className='mr-2 h-4 w-4' />
-																		Edit
-																		Payment
-																		Method
-																	</DropdownMenuItem>
-																	<DropdownMenuItem>
-																		<Edit className='mr-2 h-4 w-4' />
-																		Change
-																		Plan
-																	</DropdownMenuItem>
-																	<DropdownMenuSeparator />
-																	<DropdownMenuItem>
-																		<PencilLine className='mr-2 h-4 w-4' />
-																		Send
-																		Invoice
-																	</DropdownMenuItem>
-																</DropdownMenuContent>
-															</DropdownMenu>
-														</TableCell>
-													</TableRow>
-												);
-											})}
-									</TableBody>
-								</Table>
-							</div>
-						</TabsContent>
-					</Tabs>
-
-					{/* Overview Cards */}
-					<div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-						<Card>
-							<CardHeader>
-								<CardTitle className='flex items-center gap-2'>
-									<Calendar className='h-5 w-5 text-primary' />
-									Upcoming Projects
-								</CardTitle>
-								<CardDescription>
-									Site projects due in the next 14 days
-								</CardDescription>
-							</CardHeader>
-							<CardContent className='p-0'>
-								<div className='divide-y'>
-									{siteProjects
-										.sort(
-											(a, b) =>
-												new Date(
-													a.estimatedCompletion
-												).getTime() -
-												new Date(
-													b.estimatedCompletion
-												).getTime()
-										)
-										.slice(0, 3)
-										.map((project) => (
-											<div
-												key={project.id}
-												className='flex items-center justify-between p-4'
-											>
-												<div>
-													<p className='font-medium'>
-														{project.siteName}
-													</p>
-													<p className='text-sm text-muted-foreground'>
-														{project.clientName} •{' '}
-														{project.stage}
-													</p>
-												</div>
-												<div className='text-right'>
-													<p className='text-sm font-medium'>
-														{formatDate(
-															project.estimatedCompletion
-														)}
-													</p>
-													<p className='text-xs text-muted-foreground'>
-														{getDaysRemaining(
-															project.estimatedCompletion
-														)}{' '}
-														days left
-													</p>
-												</div>
-											</div>
-										))}
-								</div>
-							</CardContent>
-							<CardFooter className='flex justify-center p-4'>
-								<Button
-									variant='outline'
-									size='sm'
-									asChild
-								>
-									<Link href='/admin/calendar'>
-										<Calendar className='mr-2 h-4 w-4' />
-										View Full Schedule
-									</Link>
-								</Button>
-							</CardFooter>
-						</Card>
-
-						<Card>
-							<CardHeader>
-								<CardTitle className='flex items-center gap-2'>
-									<Inbox className='h-5 w-5 text-primary' />
-									Recent User Activity
-								</CardTitle>
-								<CardDescription>
-									Latest actions across the platform
-								</CardDescription>
-							</CardHeader>
-							<CardContent className='p-0'>
-								<div className='divide-y'>
-									<ActivityItem
-										icon={<FileEdit className='h-4 w-4' />}
-										title='Edit request submitted'
-										description='Linda Miller requested changes to Miller Design Studio'
-										time='2 hours ago'
-									/>
-									<ActivityItem
-										icon={
-											<TicketCheck className='h-4 w-4' />
-										}
-										title='Support ticket closed'
-										description='Resolved loading issue for Jones Fitness'
-										time='5 hours ago'
-									/>
-									<ActivityItem
-										icon={<User className='h-4 w-4' />}
-										title='New user registered'
-										description='David Johnson created an account'
-										time='1 day ago'
-									/>
-									<ActivityItem
-										icon={
-											<CheckCircle className='h-4 w-4' />
-										}
-										title='Site launched'
-										description='Wilson Photography site is now live'
-										time='2 days ago'
-									/>
-								</div>
-							</CardContent>
-							<CardFooter className='flex justify-center p-4'>
-								<Button
-									variant='outline'
-									size='sm'
-									asChild
-								>
-									<Link href='/admin/activity'>
-										<Clock className='mr-2 h-4 w-4' />
-										View All Activity
-									</Link>
-								</Button>
-							</CardFooter>
-						</Card>
-					</div>
+						</>
+					)}
 				</main>
 			</div>
 		</div>
@@ -1946,7 +1599,7 @@ function UserDetailView({ user, sites, tickets, editRequests, billingPlans }) {
 	const [activeTab, setActiveTab] = useState('overview');
 
 	return (
-		<div>
+		<>
 			<SheetHeader className='border-b pb-4 mb-4'>
 				<SheetTitle className='text-xl'>{user.name}</SheetTitle>
 				<div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-2'>
@@ -2056,7 +1709,7 @@ function UserDetailView({ user, sites, tickets, editRequests, billingPlans }) {
 														(p) =>
 															p.name === user.plan
 													)
-													?.price.toFixed(2)}
+													?.price?.toFixed(2)}
 												/mo
 											</div>
 										</div>
@@ -2073,7 +1726,7 @@ function UserDetailView({ user, sites, tickets, editRequests, billingPlans }) {
 												.find(
 													(p) => p.name === user.plan
 												)
-												?.features.slice(0, 3)
+												?.features?.slice(0, 3)
 												.map((feature, i) => (
 													<div
 														key={i}
@@ -2133,25 +1786,39 @@ function UserDetailView({ user, sites, tickets, editRequests, billingPlans }) {
 				</TabsContent>
 
 				{/* Sites Tab */}
-				<TabsContent value='sites' className='space-y-4'>
+				<TabsContent
+					value='sites'
+					className='space-y-4'
+				>
 					<div className='flex justify-between items-center'>
 						<h3 className='text-sm font-medium'>User Sites</h3>
-						<Button size='sm' variant='outline'>
+						<Button
+							size='sm'
+							variant='outline'
+						>
 							<FileEdit className='h-4 w-4 mr-2' />
 							Add New Site
 						</Button>
 					</div>
-					
+
 					<div className='rounded-md border'>
 						<Table>
 							<TableHeader>
 								<TableRow>
 									<TableHead>Site Name</TableHead>
-									<TableHead className="hidden md:table-cell">Domain</TableHead>
+									<TableHead className='hidden md:table-cell'>
+										Domain
+									</TableHead>
 									<TableHead>Stage</TableHead>
-									<TableHead className='hidden md:table-cell'>Progress</TableHead>
-									<TableHead className='hidden lg:table-cell'>Est. Completion</TableHead>
-									<TableHead className='text-right'>Actions</TableHead>
+									<TableHead className='hidden md:table-cell'>
+										Progress
+									</TableHead>
+									<TableHead className='hidden lg:table-cell'>
+										Est. Completion
+									</TableHead>
+									<TableHead className='text-right'>
+										Actions
+									</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -2165,17 +1832,31 @@ function UserDetailView({ user, sites, tickets, editRequests, billingPlans }) {
 												{site.domain}
 											</TableCell>
 											<TableCell>
-												<Select defaultValue={site.stage}>
-													<SelectTrigger className="h-8 w-[110px]">
+												<Select
+													defaultValue={site.stage}
+												>
+													<SelectTrigger className='h-8 w-[110px]'>
 														<SelectValue />
 													</SelectTrigger>
 													<SelectContent>
-														<SelectItem value="requirements">Requirements</SelectItem>
-														<SelectItem value="design">Design</SelectItem>
-														<SelectItem value="development">Development</SelectItem>
-														<SelectItem value="content">Content</SelectItem>
-														<SelectItem value="testing">Testing</SelectItem>
-														<SelectItem value="launch">Launch</SelectItem>
+														<SelectItem value='requirements'>
+															Requirements
+														</SelectItem>
+														<SelectItem value='design'>
+															Design
+														</SelectItem>
+														<SelectItem value='development'>
+															Development
+														</SelectItem>
+														<SelectItem value='content'>
+															Content
+														</SelectItem>
+														<SelectItem value='testing'>
+															Testing
+														</SelectItem>
+														<SelectItem value='launch'>
+															Launch
+														</SelectItem>
 													</SelectContent>
 												</Select>
 											</TableCell>
@@ -2185,28 +1866,43 @@ function UserDetailView({ user, sites, tickets, editRequests, billingPlans }) {
 														value={site.progress}
 														className='h-2 w-20'
 													/>
-													<Input 
-														type="number"
-														min="0"
-														max="100"
-														defaultValue={site.progress}
+													<Input
+														type='number'
+														min='0'
+														max='100'
+														defaultValue={
+															site.progress
+														}
 														className='h-7 w-16'
 													/>
 												</div>
 											</TableCell>
 											<TableCell className='hidden lg:table-cell'>
 												<Input
-													type="date"
-													defaultValue={new Date(site.estimatedCompletion).toISOString().split('T')[0]}
+													type='date'
+													defaultValue={
+														new Date(
+															site.estimatedCompletion
+														)
+															.toISOString()
+															.split('T')[0]
+													}
 													className='h-7'
 												/>
 											</TableCell>
 											<TableCell className='text-right'>
-												<div className="flex justify-end gap-2">
-													<Button size='sm' variant='outline' className="h-8 px-2">
+												<div className='flex justify-end gap-2'>
+													<Button
+														size='sm'
+														variant='outline'
+														className='h-8 px-2'
+													>
 														<Eye className='h-3.5 w-3.5' />
 													</Button>
-													<Button size='sm' className="h-8 px-2">
+													<Button
+														size='sm'
+														className='h-8 px-2'
+													>
 														Save
 													</Button>
 												</div>
@@ -2215,7 +1911,10 @@ function UserDetailView({ user, sites, tickets, editRequests, billingPlans }) {
 									))
 								) : (
 									<TableRow>
-										<TableCell colSpan={6} className="h-24 text-center">
+										<TableCell
+											colSpan={6}
+											className='h-24 text-center'
+										>
 											No sites found for this user
 										</TableCell>
 									</TableRow>
@@ -2226,101 +1925,180 @@ function UserDetailView({ user, sites, tickets, editRequests, billingPlans }) {
 				</TabsContent>
 
 				{/* Billing Tab */}
-				<TabsContent value='billing' className='space-y-4'>
+				<TabsContent
+					value='billing'
+					className='space-y-4'
+				>
 					{user.plan ? (
 						<>
 							<div className='flex justify-between items-center'>
-								<h3 className='text-sm font-medium'>Current Plan</h3>
-								<div className="flex gap-2">
-									<Button size='sm' variant='outline'>
+								<h3 className='text-sm font-medium'>
+									Current Plan
+								</h3>
+								<div className='flex gap-2'>
+									<Button
+										size='sm'
+										variant='outline'
+									>
 										<Edit className='h-4 w-4 mr-2' />
 										Change Plan
 									</Button>
-									<Button size='sm' variant='outline'>
+									<Button
+										size='sm'
+										variant='outline'
+									>
 										<CreditCard className='h-4 w-4 mr-2' />
 										Update Payment
 									</Button>
 								</div>
 							</div>
-							
+
 							<Card>
 								<CardContent className='p-4 space-y-4'>
 									<div className='flex justify-between items-start'>
 										<div>
-											<h4 className='font-medium text-lg'>{user.plan}</h4>
+											<h4 className='font-medium text-lg'>
+												{user.plan}
+											</h4>
 											<p className='text-sm text-muted-foreground'>
-												${billingPlans.find(p => p.name === user.plan)?.price.toFixed(2)}/month
+												$
+												{billingPlans
+													.find(
+														(p) =>
+															p.name === user.plan
+													)
+													?.price?.toFixed(2)}
+												/month
 											</p>
 										</div>
-										<Badge variant={user.status === 'active' ? 'default' : 'outline'}>
-											{user.status === 'active' ? 'Active' : user.status}
+										<Badge
+											variant={
+												user.status === 'active'
+													? 'default'
+													: 'outline'
+											}
+										>
+											{user.status === 'active'
+												? 'Active'
+												: user.status}
 										</Badge>
 									</div>
-									
+
 									<div className='text-sm'>
 										<div className='grid grid-cols-2 gap-2'>
 											<div>
-												<div className='text-xs text-muted-foreground'>Next Billing Date</div>
+												<div className='text-xs text-muted-foreground'>
+													Next Billing Date
+												</div>
 												<div>
 													{user.nextBillingDate ? (
-														<div className="flex items-center gap-2">
-															<span>{formatDate(user.nextBillingDate)}</span>
-															<Button size="sm" variant="ghost" className="h-6 px-2">
-																<Edit className="h-3 w-3" />
+														<div className='flex items-center gap-2'>
+															<span>
+																{formatDate(
+																	user.nextBillingDate
+																)}
+															</span>
+															<Button
+																size='sm'
+																variant='ghost'
+																className='h-6 px-2'
+															>
+																<Edit className='h-3 w-3' />
 															</Button>
 														</div>
-													) : 'Not set'}
+													) : (
+														'Not set'
+													)}
 												</div>
 											</div>
 											<div>
-												<div className='text-xs text-muted-foreground'>Payment Method</div>
-												<div>{user.paymentMethod || 'None'}</div>
+												<div className='text-xs text-muted-foreground'>
+													Payment Method
+												</div>
+												<div>
+													{user.paymentMethod ||
+														'None'}
+												</div>
 											</div>
 										</div>
 									</div>
-									
+
 									<div>
-										<div className='text-xs text-muted-foreground mb-1'>Plan Features</div>
+										<div className='text-xs text-muted-foreground mb-1'>
+											Plan Features
+										</div>
 										<div className='text-sm grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1'>
-											{billingPlans.find(p => p.name === user.plan)?.features.map((feature, i) => (
-												<div key={i} className='flex items-center'>
-													<CheckCircle2 className='h-3 w-3 mr-1 text-green-500' />
-													{feature}
-												</div>
-											))}
+											{billingPlans
+												.find(
+													(p) => p.name === user.plan
+												)
+												?.features?.map(
+													(feature, i) => (
+														<div
+															key={i}
+															className='flex items-center'
+														>
+															<CheckCircle2 className='h-3 w-3 mr-1 text-green-500' />
+															{feature}
+														</div>
+													)
+												)}
 										</div>
 									</div>
 								</CardContent>
 							</Card>
-							
+
 							<div>
-								<h3 className='text-sm font-medium mb-2'>Billing Adjustments</h3>
-								<Card className="p-4">
-									<div className="space-y-4">
-										<div className="grid grid-cols-2 gap-3">
+								<h3 className='text-sm font-medium mb-2'>
+									Billing Adjustments
+								</h3>
+								<Card className='p-4'>
+									<div className='space-y-4'>
+										<div className='grid grid-cols-2 gap-3'>
 											<div>
-												<div className="text-xs text-muted-foreground mb-1">Adjustment Type</div>
-												<Select defaultValue="none">
+												<div className='text-xs text-muted-foreground mb-1'>
+													Adjustment Type
+												</div>
+												<Select defaultValue='none'>
 													<SelectTrigger>
-														<SelectValue placeholder="Select type" />
+														<SelectValue placeholder='Select type' />
 													</SelectTrigger>
 													<SelectContent>
-														<SelectItem value="none">Select type...</SelectItem>
-														<SelectItem value="credit">Add Credit</SelectItem>
-														<SelectItem value="discount">Add Discount</SelectItem>
-														<SelectItem value="refund">Issue Refund</SelectItem>
-														<SelectItem value="charge">Additional Charge</SelectItem>
+														<SelectItem value='none'>
+															Select type...
+														</SelectItem>
+														<SelectItem value='credit'>
+															Add Credit
+														</SelectItem>
+														<SelectItem value='discount'>
+															Add Discount
+														</SelectItem>
+														<SelectItem value='refund'>
+															Issue Refund
+														</SelectItem>
+														<SelectItem value='charge'>
+															Additional Charge
+														</SelectItem>
 													</SelectContent>
 												</Select>
 											</div>
 											<div>
-												<div className="text-xs text-muted-foreground mb-1">Amount ($)</div>
-												<Input type="number" min="0" step="0.01" placeholder="0.00" />
+												<div className='text-xs text-muted-foreground mb-1'>
+													Amount ($)
+												</div>
+												<Input
+													type='number'
+													min='0'
+													step='0.01'
+													placeholder='0.00'
+												/>
 											</div>
 										</div>
 										<div>
-											<div className="text-xs text-muted-foreground mb-1">Reason</div>
-											<Input placeholder="Reason for adjustment" />
+											<div className='text-xs text-muted-foreground mb-1'>
+												Reason
+											</div>
+											<Input placeholder='Reason for adjustment' />
 										</div>
 										<Button>Apply Adjustment</Button>
 									</div>
@@ -2328,23 +2106,28 @@ function UserDetailView({ user, sites, tickets, editRequests, billingPlans }) {
 							</div>
 						</>
 					) : (
-						<div className="text-center p-8">
-							<div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
-								<CreditCard className="h-6 w-6 text-muted-foreground" />
+						<div className='text-center p-8'>
+							<div className='mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3'>
+								<CreditCard className='h-6 w-6 text-muted-foreground' />
 							</div>
-							<h3 className="font-medium mb-1">No Billing Plan</h3>
-							<p className="text-sm text-muted-foreground mb-4">
-								This user doesn't have an active billing plan yet.
+							<h3 className='font-medium mb-1'>
+								No Billing Plan
+							</h3>
+							<p className='text-sm text-muted-foreground mb-4'>
+								This user doesn't have an active billing plan
+								yet.
 							</p>
 							<Button>
-								<PlusCircle className="h-4 w-4 mr-2" />
+								<PlusCircle className='h-4 w-4 mr-2' />
 								Add Billing Plan
 							</Button>
 						</div>
 					)}
-					
+
 					<div className='mt-6'>
-						<h3 className='text-sm font-medium mb-2'>Billing History</h3>
+						<h3 className='text-sm font-medium mb-2'>
+							Billing History
+						</h3>
 						<div className='rounded-md border'>
 							<Table>
 								<TableHeader>
@@ -2353,49 +2136,63 @@ function UserDetailView({ user, sites, tickets, editRequests, billingPlans }) {
 										<TableHead>Type</TableHead>
 										<TableHead>Amount</TableHead>
 										<TableHead>Status</TableHead>
-										<TableHead className="text-right">Actions</TableHead>
+										<TableHead className='text-right'>
+											Actions
+										</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
-									{user.billingHistory && user.billingHistory.length > 0 ? (
+									{user.billingHistory &&
+									user.billingHistory.length > 0 ? (
 										user.billingHistory.map((entry) => (
 											<TableRow key={entry.id}>
 												<TableCell>
 													{formatDate(entry.date)}
 												</TableCell>
-												<TableCell>{entry.type}</TableCell>
+												<TableCell>
+													{entry.type}
+												</TableCell>
 												<TableCell>
 													${entry.amount.toFixed(2)}
 												</TableCell>
 												<TableCell>
 													<Badge
 														variant='outline'
-														className={entry.status === 'paid' ? 
-															'bg-green-100 text-green-800 hover:bg-green-100 border-green-200' :
-															'bg-amber-100 text-amber-800 hover:bg-amber-100 border-amber-200'}
+														className={
+															entry.status ===
+															'paid'
+																? 'bg-green-100 text-green-800 hover:bg-green-100 border-green-200'
+																: 'bg-amber-100 text-amber-800 hover:bg-amber-100 border-amber-200'
+														}
 													>
 														{entry.status}
 													</Badge>
 												</TableCell>
-												<TableCell className="text-right">
+												<TableCell className='text-right'>
 													<DropdownMenu>
-														<DropdownMenuTrigger asChild>
-															<Button variant="ghost" size="sm">
+														<DropdownMenuTrigger
+															asChild
+														>
+															<Button
+																variant='ghost'
+																size='sm'
+															>
 																<MoreButton />
 															</Button>
 														</DropdownMenuTrigger>
-														<DropdownMenuContent align="end">
+														<DropdownMenuContent align='end'>
 															<DropdownMenuItem>
-																<Eye className="mr-2 h-4 w-4" />
+																<Eye className='mr-2 h-4 w-4' />
 																View Invoice
 															</DropdownMenuItem>
 															<DropdownMenuItem>
-																<PencilLine className="mr-2 h-4 w-4" />
+																<PencilLine className='mr-2 h-4 w-4' />
 																Resend Invoice
 															</DropdownMenuItem>
-															{entry.status !== 'paid' && (
+															{entry.status !==
+																'paid' && (
 																<DropdownMenuItem>
-																	<CheckCircle2 className="mr-2 h-4 w-4" />
+																	<CheckCircle2 className='mr-2 h-4 w-4' />
 																	Mark as Paid
 																</DropdownMenuItem>
 															)}
@@ -2406,7 +2203,10 @@ function UserDetailView({ user, sites, tickets, editRequests, billingPlans }) {
 										))
 									) : (
 										<TableRow>
-											<TableCell colSpan={5} className="h-24 text-center">
+											<TableCell
+												colSpan={5}
+												className='h-24 text-center'
+											>
 												No billing history found
 											</TableCell>
 										</TableRow>
@@ -2471,7 +2271,7 @@ function UserDetailView({ user, sites, tickets, editRequests, billingPlans }) {
 					</div>
 				</TabsContent>
 			</Tabs>
-		</div>
+		</>
 	);
 }
 
@@ -2887,7 +2687,9 @@ function EditRequestDetailView({ request, onBack }) {
 			<div className='space-y-6'>
 				{/* Request Details */}
 				<div>
-					<h3 className='text-sm font-medium mb-2'>Request Details</h3>
+					<h3 className='text-sm font-medium mb-2'>
+						Request Details
+					</h3>
 					<Card>
 						<CardContent className='p-4 space-y-3'>
 							<div>
@@ -2933,7 +2735,9 @@ function EditRequestDetailView({ request, onBack }) {
 				{/* Attachments */}
 				{request.attachments && request.attachments.length > 0 && (
 					<div>
-						<h3 className='text-sm font-medium mb-2'>Attachments</h3>
+						<h3 className='text-sm font-medium mb-2'>
+							Attachments
+						</h3>
 						<div className='space-y-2'>
 							{request.attachments.map((attachment, index) => (
 								<Card
@@ -2981,7 +2785,9 @@ function EditRequestDetailView({ request, onBack }) {
 								<SelectItem value='in-progress'>
 									In Progress
 								</SelectItem>
-								<SelectItem value='completed'>Completed</SelectItem>
+								<SelectItem value='completed'>
+									Completed
+								</SelectItem>
 							</SelectContent>
 						</Select>
 						<Button>Update Status</Button>
@@ -3008,7 +2814,7 @@ function SupportTicketDetailView({ ticket, onBack }) {
 	const [status, setStatus] = useState(ticket.status);
 
 	return (
-		<div>
+		<>
 			<SheetHeader className='border-b pb-4 mb-4'>
 				<div className='flex items-center justify-between'>
 					<SheetTitle className='text-xl'>Support Ticket</SheetTitle>
@@ -3037,7 +2843,9 @@ function SupportTicketDetailView({ ticket, onBack }) {
 								<div className='text-xs text-muted-foreground'>
 									Issue
 								</div>
-								<div className='font-medium'>{ticket.issue}</div>
+								<div className='font-medium'>
+									{ticket.issue}
+								</div>
 							</div>
 							<div>
 								<div className='text-xs text-muted-foreground'>
@@ -3052,7 +2860,9 @@ function SupportTicketDetailView({ ticket, onBack }) {
 									<div className='text-xs text-muted-foreground'>
 										Steps to Reproduce
 									</div>
-									<div className='text-sm'>{ticket.steps}</div>
+									<div className='text-sm'>
+										{ticket.steps}
+									</div>
 								</div>
 							)}
 							<div className='flex gap-4'>
@@ -3084,7 +2894,9 @@ function SupportTicketDetailView({ ticket, onBack }) {
 				{/* Attachments */}
 				{ticket.attachments && ticket.attachments.length > 0 && (
 					<div>
-						<h3 className='text-sm font-medium mb-2'>Attachments</h3>
+						<h3 className='text-sm font-medium mb-2'>
+							Attachments
+						</h3>
 						<div className='space-y-2'>
 							{ticket.attachments.map((attachment, index) => (
 								<Card
@@ -3119,12 +2931,16 @@ function SupportTicketDetailView({ ticket, onBack }) {
 				{/* Update Section */}
 				{ticket.lastUpdated && (
 					<div>
-						<h3 className='text-sm font-medium mb-2'>Latest Update</h3>
+						<h3 className='text-sm font-medium mb-2'>
+							Latest Update
+						</h3>
 						<Card className='p-4'>
 							<div className='text-xs text-muted-foreground'>
 								{formatDate(ticket.lastUpdated)}
 							</div>
-							<div className='text-sm'>{ticket.lastUpdateNote}</div>
+							<div className='text-sm'>
+								{ticket.lastUpdateNote}
+							</div>
 							{ticket.assignedTo && (
 								<div className='text-xs text-muted-foreground mt-2'>
 									Assigned to: {ticket.assignedTo}
@@ -3142,8 +2958,8 @@ function SupportTicketDetailView({ ticket, onBack }) {
 							<div className='text-sm'>{ticket.resolution}</div>
 							{ticket.closedDate && (
 								<div className='text-xs text-muted-foreground mt-2'>
-									Closed on: {formatDate(ticket.closedDate)} by{' '}
-									{ticket.closedBy}
+									Closed on: {formatDate(ticket.closedDate)}{' '}
+									by {ticket.closedBy}
 								</div>
 							)}
 						</Card>
@@ -3153,39 +2969,43 @@ function SupportTicketDetailView({ ticket, onBack }) {
 				{/* Action Section */}
 				{ticket.status !== 'closed' && (
 					<div>
-						<h3 className='text-sm font-medium mb-2'>Update Status</h3>
-							<div className='flex gap-3 mb-4'>
-								<Select
-									value={status}
-									onValueChange={setStatus}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder='Select status' />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value='open'>Open</SelectItem>
-										<SelectItem value='in-progress'>
-											In Progress
-										</SelectItem>
-										<SelectItem value='closed'>Closed</SelectItem>
-									</SelectContent>
-								</Select>
-								<Button>Update Status</Button>
-							</div>
+						<h3 className='text-sm font-medium mb-2'>
+							Update Status
+						</h3>
+						<div className='flex gap-3 mb-4'>
+							<Select
+								value={status}
+								onValueChange={setStatus}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder='Select status' />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value='open'>Open</SelectItem>
+									<SelectItem value='in-progress'>
+										In Progress
+									</SelectItem>
+									<SelectItem value='closed'>
+										Closed
+									</SelectItem>
+								</SelectContent>
+							</Select>
+							<Button>Update Status</Button>
+						</div>
 
-							<div className='grid grid-cols-2 gap-2'>
-								<Button variant='outline'>
-									<MessageCircle className='h-4 w-4 mr-2' />
-									Reply to Client
-								</Button>
-								<Button variant='outline'>
-									<User className='h-4 w-4 mr-2' />
-									Assign Support Agent
-								</Button>
-							</div>
+						<div className='grid grid-cols-2 gap-2'>
+							<Button variant='outline'>
+								<MessageCircle className='h-4 w-4 mr-2' />
+								Reply to Client
+							</Button>
+							<Button variant='outline'>
+								<User className='h-4 w-4 mr-2' />
+								Assign Support Agent
+							</Button>
+						</div>
 					</div>
 				)}
 			</div>
-		</div>
+		</>
 	);
 }
