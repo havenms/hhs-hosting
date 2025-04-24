@@ -69,7 +69,6 @@ const siteData = {
 
 // Project stages for simulation
 const projectStages = [
-	{ value: 'pre-build', label: 'Pre-build' },
 	{ value: 'building', label: 'Building' },
 	{ value: 'deployed', label: 'Deployed' },
 ];
@@ -80,7 +79,6 @@ export function UserDashboard() {
 	const [simulatedStage, setSimulatedStage] = useState('building');
 
 	// Determine current site state based on simulated stage
-	const isPreBuild = simulatedStage === 'pre-build';
 	const isBuilding = simulatedStage === 'building';
 	const isDeployed = simulatedStage === 'deployed';
 
@@ -147,84 +145,7 @@ export function UserDashboard() {
 
 					{/* Project Status Banner - Different based on project stage */}
 					<section className='mb-8'>
-						{isPreBuild && (
-							/* User has just signed up - Pre-build */
-							<Card className='border-secondary'>
-								<CardHeader className='bg-secondary/10 border-b border-secondary/20'>
-									<Badge
-										variant='outline'
-										className='mb-2 bg-secondary/20 text-secondary border-secondary w-fit'
-									>
-										Getting Started
-									</Badge>
-									<CardTitle className='text-2xl'>
-										Welcome to HHS Hosting!
-									</CardTitle>
-									<CardDescription>
-										Let's get started building your
-										WordPress site.
-									</CardDescription>
-								</CardHeader>
-								<CardContent className='pt-6'>
-									<div className='grid md:grid-cols-2 gap-6'>
-										<div>
-											<h3 className='text-lg font-medium mb-3'>
-												Next Steps
-											</h3>
-											<div className='space-y-4'>
-												<Button
-													className='w-full sm:w-auto rounded-full'
-													asChild
-												>
-													<Link href='/site-requirements'>
-														<FileText className='mr-2 h-4 w-4' />
-														Submit Site Requirements
-													</Link>
-												</Button>
-												<Button
-													className='w-full sm:w-auto rounded-full'
-													variant='outline'
-													asChild
-												>
-													<Link href='/schedule'>
-														<Calendar className='mr-2 h-4 w-4' />
-														Schedule Consultation
-													</Link>
-												</Button>
-											</div>
-										</div>
-
-										<div>
-											<h3 className='text-lg font-medium mb-3'>
-												Need Help?
-											</h3>
-											<div className='space-y-4'>
-												<Button
-													className='w-full sm:w-auto rounded-full'
-													variant='outline'
-													asChild
-												>
-													<Link href='/support'>
-														<LifeBuoy className='mr-2 h-4 w-4' />
-														Contact Support
-													</Link>
-												</Button>
-												<Button
-													className='w-full sm:w-auto rounded-full'
-													variant='outline'
-													asChild
-												>
-													<Link href='/billing'>
-														<CreditCard className='mr-2 h-4 w-4' />
-														View Billing
-													</Link>
-												</Button>
-											</div>
-										</div>
-									</div>
-								</CardContent>
-							</Card>
-						)}
+						
 
 						{isBuilding && (
 							/* User's site is being built */
@@ -669,17 +590,7 @@ export function UserDashboard() {
 													</span>
 												</div>
 											</div>
-											<Button
-												className='w-full'
-												asChild
-											>
-												<Link
-													href={`/sites/${siteData.id}/timeline`}
-												>
-													<Clock className='mr-2 h-4 w-4' />
-													View Detailed Timeline
-												</Link>
-											</Button>
+											
 										</div>
 									)}
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { UserDashboard } from '@/components/user-dashboard';
+import { Dashboard } from '@/components/dashboard'; // Import the new component
 import { AdminDashboard } from '@/components/admin-dashboard';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -36,6 +36,6 @@ export function DashboardContainer() {
 		);
 	}
 
-	// Non-admin users see the user dashboard
-	return <UserDashboard />;
+	// Non-admin users see the user dashboard - now using the new Dashboard component
+	return <Dashboard />;
 }
