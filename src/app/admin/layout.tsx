@@ -1,17 +1,19 @@
 'use client';
 
-import { useAuth } from '@/hooks/useAuth'; // Use the correct import path!
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { AdminDebug } from '@/components/admin-debug';
+import { AdminNavbar } from '@/components/admin-navbar'; // Import the navbar
+import { AdminSidebar } from '@/components/admin-sidebar'; // Import the sidebar
 
 export default function AdminLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	const { user, isAdmin, isLoading } = useAuth(); // Get isLoading from useAuth
+	const { user, isAdmin, isLoading } = useAuth();
 	const router = useRouter();
 
 	// Protection at layout level
@@ -52,11 +54,24 @@ export default function AdminLayout({
 		);
 	}
 
-	// Render children for admin users
+	// Render layout with navbar, sidebar and children for admin users
 	return (
-		<>
-			{children}
+		<div className='min-h-screen bg-background flex flex-col'>
+			{/* Add the UserNavbar at the top */}
+			<AdminNavbar />
+
+			{/* Create a flex container for sidebar and main content */}
+			<div className='flex flex-1'>
+				{/* Add AdminSidebar */}
+				<AdminSidebar />
+
+				{/* Main content area */}
+				<main className='flex-1 p-4 md:p-6 overflow-auto'>
+					{children}
+				</main>
+			</div>
+
 			{process.env.NODE_ENV === 'development' && <AdminDebug />}
-		</>
+		</div>
 	);
 }

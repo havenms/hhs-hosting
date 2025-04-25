@@ -3,7 +3,6 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/components/auth-provider';
-import { UserNavbar } from '@/components/user-navbar';
 import { ProjectStageSwitcher } from './ProjectStageSwitcher';
 import { PreBuildBanner } from './status-banners/PreBuildBanner';
 import { BuildingBanner } from './status-banners/BuildingBanner';
@@ -62,7 +61,6 @@ export function Dashboard() {
 
 	return (
 		<div className='min-h-screen min-w-screen bg-background flex flex-col justify-center overflow-x-hidden'>
-			<UserNavbar />
 
 			<div className='flex mx-auto w-full sm:max-w-7xl lg:w-80vw'>
 				<main className='flex-1 container px-4 py-8'>

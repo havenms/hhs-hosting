@@ -9,10 +9,6 @@ import { Logo } from '@/components/logo';
 import { LoginModal } from '@/components/login-modal';
 
 const navigation = [
-	{ name: 'Home', href: '/' },
-	{ name: 'Features', href: '/features' },
-	{ name: 'Pricing', href: '/pricing' },
-	{ name: 'Support', href: '/support' },
 ];
 
 export function Navbar() {

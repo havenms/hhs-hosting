@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { SignIn, SignUp } from '@clerk/nextjs';
+import { SignIn, SignUp, useSignIn } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -10,10 +10,44 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useRouter } from 'next/navigation';
 
 export function LoginModal() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [activeTab, setActiveTab] = useState('sign-in');
+	const { signIn } = useSignIn();
+	const router = useRouter();
+
+	// Handle successful sign-in with role-based redirection
+	const handleSignInComplete = async (result) => {
+		if (result.status === 'complete') {
+			try {
+				// Get user metadata to check admin status
+				const user = result.createdSessionId
+					? await fetch('/api/user-role').then((res) => res.json())
+					: null;
+
+				if (user?.isAdmin) {
+					console.log(
+						'Admin user detected, redirecting to admin dashboard'
+					);
+					router.push('/admin');
+				} else {
+					console.log(
+						'Regular user detected, redirecting to user dashboard'
+					);
+					router.push('/user/dashboard');
+				}
+
+				// Close the modal after successful sign-in
+				setIsOpen(false);
+			} catch (error) {
+				console.error('Error during sign-in redirect:', error);
+				// Fallback to dashboard which has its own redirection logic
+				router.push('/dashboard');
+			}
+		}
+	};
 
 	// Shared appearance settings for Clerk components
 	const clerkAppearance = {
@@ -47,7 +81,7 @@ export function LoginModal() {
 					size='lg'
 					className='rounded-full px-8'
 				>
-					Login
+					Login / Sign Up
 				</Button>
 			</DialogTrigger>
 
@@ -72,8 +106,9 @@ export function LoginModal() {
 					>
 						<SignIn
 							routing='hash'
-							afterSignInUrl='/dashboard'
+							afterSignInUrl='/dashboard' /* This is a fallback */
 							appearance={clerkAppearance}
+							signInCallback={handleSignInComplete}
 						/>
 					</TabsContent>
 

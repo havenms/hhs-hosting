@@ -157,12 +157,12 @@ export function SiteInformation({
 										asChild
 									>
 										<Link
-											href='/support/edit-request'
+											href='/support'
 											className='w-full flex items-center'
 										>
 											<FileText className='h-4 w-4 mr-2 flex-shrink-0' />
 											<span className='flex-grow text-left'>
-												Request Site Edit
+												Support
 											</span>
 										</Link>
 									</Button>

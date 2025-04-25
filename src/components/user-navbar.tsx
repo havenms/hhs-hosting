@@ -28,10 +28,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const navigation = [
-	{ name: 'Dashboard', href: '/', icon: LayoutDashboard },
-	{ name: 'Sites', href: '/sites', icon: Server },
-	{ name: 'Billing', href: '/billing', icon: CreditCard },
-	{ name: 'Support', href: '/support', icon: LifeBuoy },
+	{ name: 'Dashboard', href: '/user', icon: LayoutDashboard },
+	{ name: 'Site', href: '/user/site', icon: Server },
+	{ name: 'Billing', href: '/user/billing', icon: CreditCard },
+	{ name: 'Support', href: '/user/support', icon: LifeBuoy },
 ];
 
 export function UserNavbar() {
@@ -52,7 +52,7 @@ export function UserNavbar() {
 					{/* Logo */}
 					<div className='flex items-center'>
 						<Link
-							href='/'
+							href='/user'
 							className='flex items-center'
 						>
 							<Logo />

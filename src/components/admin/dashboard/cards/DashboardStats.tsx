@@ -1,12 +1,6 @@
 'use client';
 
-import {
-	LayoutDashboard,
-	FileEdit,
-	TicketCheck,
-	Users,
-	ArrowUpRight,
-} from 'lucide-react';
+import { TicketCheck, Users, ArrowUpRight } from 'lucide-react';
 import {
 	Card,
 	CardHeader,
@@ -15,46 +9,15 @@ import {
 	CardFooter,
 } from '@/components/ui/card';
 
+// Updated interface removing projects and editRequests
 interface DashboardStatsProps {
-	projects: any[];
-	editRequests: any[];
 	supportTickets: any[];
 	users: any[];
 }
 
-export function DashboardStats({
-	projects,
-	editRequests,
-	supportTickets,
-	users,
-}: DashboardStatsProps) {
+export function DashboardStats({ supportTickets, users }: DashboardStatsProps) {
 	return (
-		<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6'>
-			{/* Projects Card */}
-			<DashboardCard
-				title='Projects'
-				value={projects.length}
-				icon={<LayoutDashboard className='h-5 w-5' />}
-				description='Active site projects'
-				trend='+2 this month'
-				trendUp={true}
-				color='bg-blue-500'
-			/>
-
-			{/* Edit Requests Card */}
-			<DashboardCard
-				title='Edit Requests'
-				value={
-					editRequests.filter((req) => req.status !== 'completed')
-						.length
-				}
-				icon={<FileEdit className='h-5 w-5' />}
-				description='Pending requests'
-				trend='+5 this week'
-				trendUp={true}
-				color='bg-amber-500'
-			/>
-
+		<div className='grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6'>
 			{/* Support Tickets Card */}
 			<DashboardCard
 				title='Support Tickets'

@@ -1,8 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { UserNavbar } from '@/components/user-navbar';
-import { AdminSidebar } from '@/components/admin-sidebar';
+
 
 interface AdminLayoutProps {
 	children: ReactNode;
@@ -13,12 +12,10 @@ interface AdminLayoutProps {
 export function AdminLayout({ children, title, actions }: AdminLayoutProps) {
 	return (
 		<div className='min-h-screen flex flex-col'>
-			{/* Add the UserNavbar component at the top */}
-			<UserNavbar />
+		
 
 			<div className='flex flex-1'>
-				{/* Add the AdminSidebar component */}
-				<AdminSidebar />
+			
 
 				{/* Main content */}
 				<main className='flex-1 p-6'>

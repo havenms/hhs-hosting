@@ -30,29 +30,9 @@ export function AdminSidebar() {
 			icon: <Users className='h-5 w-5 mr-3' />,
 		},
 		{
-			name: 'Site Projects',
-			href: '/admin/projects',
-			icon: <CalendarClock className='h-5 w-5 mr-3' />,
-		},
-		{
-			name: 'Edit Requests',
-			href: '/admin/edit-requests',
-			icon: <FileEdit className='h-5 w-5 mr-3' />,
-		},
-		{
 			name: 'Support Tickets',
 			href: '/admin/tickets',
 			icon: <TicketCheck className='h-5 w-5 mr-3' />,
-		},
-		{
-			name: 'Analytics',
-			href: '/admin/analytics',
-			icon: <BarChart3 className='h-5 w-5 mr-3' />,
-		},
-		{
-			name: 'Settings',
-			href: '/admin/settings',
-			icon: <Settings className='h-5 w-5 mr-3' />,
 		},
 	];
 

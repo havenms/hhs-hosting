@@ -3,17 +3,13 @@
 
 import { useState, useEffect } from 'react';
 import { authFetch } from '@/lib/auth-utils';
-import { UserNavbar } from '@/components/user-navbar';
-import { AdminSidebar } from '@/components/admin-sidebar';
 import { LoadingState } from '@/components/shared/LoadingState';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { DashboardStats } from './cards/DashboardStats';
-import { ProjectsTab } from './projects/ProtectsTab'; // Change the import path to match the filename
 import { InboxTab } from './inbox/InboxTab';
 import { UsersTab } from './users/UsersTab';
 import { BillingTab } from './billing/BillingTab';
 import { ActivityOverview } from './overview/ActivityOverview';
-import { ProjectsOverview } from './overview/ProjectsOverview';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function AdminDashboard() {
@@ -133,30 +129,7 @@ export function AdminDashboard() {
 				},
 			]);
 
-			setEditRequests([
-				{
-					id: 'edit1',
-					description: 'Update contact information',
-					status: 'pending',
-					requestDate: new Date().toISOString(),
-					siteName: 'Demo Business Site',
-					clientName: 'ABC Company',
-					userId: 'user1',
-					priority: 'medium',
-				},
-				{
-					id: 'edit2',
-					description: 'Add new product section',
-					status: 'in-progress',
-					requestDate: new Date(
-						Date.now() - 3 * 86400000
-					).toISOString(),
-					siteName: 'XYZ Foundation',
-					clientName: 'XYZ Foundation',
-					userId: 'user2',
-					priority: 'low',
-				},
-			]);
+			
 		} catch (err) {
 			console.error('Error fetching users:', err);
 			setError(err.message);
@@ -167,9 +140,7 @@ export function AdminDashboard() {
 
 	return (
 		<div className='min-h-screen bg-background'>
-			<UserNavbar />
 			<div className='flex'>
-				<AdminSidebar />
 				<main className='flex-1 p-4 md:p-6 overflow-auto'>
 					{loading ? (
 						<LoadingState />
@@ -185,20 +156,15 @@ export function AdminDashboard() {
 							</div>
 
 							<DashboardStats
-								projects={siteProjects}
-								editRequests={editRequests}
 								supportTickets={supportTickets}
 								users={users}
 							/>
 
 							<Tabs
-								defaultValue='projects'
+								defaultValue='inbox'
 								className='mb-6'
 							>
 								<TabsList className='mb-4 w-full sm:w-auto overflow-auto'>
-									<TabsTrigger value='projects'>
-										Site Projects
-									</TabsTrigger>
 									<TabsTrigger value='inbox'>
 										Unified Inbox
 									</TabsTrigger>
@@ -209,10 +175,6 @@ export function AdminDashboard() {
 										Billing
 									</TabsTrigger>
 								</TabsList>
-
-								<TabsContent value='projects'>
-									<ProjectsTab projects={siteProjects} />
-								</TabsContent>
 
 								<TabsContent value='inbox'>
 									<InboxTab
@@ -235,8 +197,7 @@ export function AdminDashboard() {
 								</TabsContent>
 							</Tabs>
 
-							<div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-								<ProjectsOverview projects={siteProjects} />
+							<div className='grid grid-cols-1 gap-6'>
 								<ActivityOverview
 									tickets={supportTickets}
 									requests={editRequests}
