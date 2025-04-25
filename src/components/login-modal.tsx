@@ -36,7 +36,7 @@ export function LoginModal() {
 					console.log(
 						'Regular user detected, redirecting to user dashboard'
 					);
-					router.push('/user/dashboard');
+					router.push('/user/');
 				}
 
 				// Close the modal after successful sign-in
@@ -44,7 +44,7 @@ export function LoginModal() {
 			} catch (error) {
 				console.error('Error during sign-in redirect:', error);
 				// Fallback to dashboard which has its own redirection logic
-				router.push('/dashboard');
+				router.push('/user');
 			}
 		}
 	};
@@ -106,7 +106,7 @@ export function LoginModal() {
 					>
 						<SignIn
 							routing='hash'
-							afterSignInUrl='/dashboard' /* This is a fallback */
+							afterSignInUrl='/user' /* This is a fallback */
 							appearance={clerkAppearance}
 							signInCallback={handleSignInComplete}
 						/>

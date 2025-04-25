@@ -47,24 +47,21 @@ export function SiteInformation({
 	isDeployed,
 }: SiteInformationProps) {
 	return (
-		<section className='mt-6 md:mt-8 flex flex-col w-full'>
-			<h2 className='text-xl sm:text-2xl font-semibold mb-3 md:mb-4'>
+		<section className='space-y-4'>
+			<h2 className='text-xl font-semibold'>
 				{isDeployed
 					? 'Your WordPress Site'
 					: isBuilding
 					? 'Your Project'
 					: 'Getting Started'}
 			</h2>
-			<Card className='overflow-hidden flex-1 flex flex-col'>
-				<CardHeader className='px-4 sm:px-6 py-4 sm:py-5 mx-auto w-full max-w-2xl'>
-					<div className='flex flex-row items-center justify-between'>
-						<CardTitle className='text-lg sm:text-xl mr-2 flex-grow truncate'>
+			<Card>
+				<CardHeader>
+					<div className='flex items-center justify-between'>
+						<CardTitle className='text-lg mr-2 truncate'>
 							{siteData.name}
 						</CardTitle>
-						<Badge
-							variant={isDeployed ? 'default' : 'outline'}
-							className='flex-shrink-0'
-						>
+						<Badge variant={isDeployed ? 'default' : 'outline'}>
 							{isDeployed
 								? 'Live'
 								: isBuilding
@@ -73,40 +70,38 @@ export function SiteInformation({
 						</Badge>
 					</div>
 					{(isBuilding || isDeployed) && (
-						<div className='text-sm text-muted-foreground truncate mt-1'>
+						<p className='text-sm text-muted-foreground truncate mt-1'>
 							{siteData.domain}
-						</div>
+						</p>
 					)}
 				</CardHeader>
 
-				<CardContent className='px-4 sm:px-6 pb-0 flex-grow flex flex-col'>
-					<div className='flex flex-col gap-4 sm:gap-5 flex-grow max-w-2xl mx-auto w-full'>
-						
+				<CardContent>
+					<div className='space-y-4'>
 						{/* Building State */}
 						{isBuilding && (
-							<div className='flex flex-col gap-4 sm:gap-5 flex-grow'>
-								<div className='bg-muted p-3 sm:p-4 rounded-lg flex-grow'>
-									<h3 className='font-medium mb-2 text-sm sm:text-base'>
+							<div className='space-y-4'>
+								<div className='bg-muted p-4 rounded-lg'>
+									<h3 className='font-medium mb-2 text-sm'>
 										Project Stage
 									</h3>
 									<div className='flex items-center'>
-										<RefreshCw className='h-4 w-4 text-primary mr-2 animate-spin flex-shrink-0' />
+										<RefreshCw className='h-4 w-4 text-primary mr-2 animate-spin' />
 										<span className='text-sm'>
 											Development in progress
 										</span>
 									</div>
 								</div>
-								
 							</div>
 						)}
 
 						{/* Deployed State */}
 						{isDeployed && (
-							<div className='flex flex-col gap-4 sm:gap-5 flex-grow'>
-								{/* Site Stats Grid - Responsive from 1 to 2 columns */}
-								<div className='flex flex-col sm:flex-row gap-3 w-full'>
-									<div className='bg-muted p-3 sm:p-4 rounded-lg flex-1 flex flex-col'>
-										<h4 className='text-xs sm:text-sm font-medium mb-1'>
+							<div className='space-y-4'>
+								{/* Site Stats Grid */}
+								<div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+									<div className='bg-muted p-4 rounded-lg'>
+										<h4 className='text-sm font-medium mb-1'>
 											Last Updated
 										</h4>
 										<p className='font-medium'>
@@ -115,8 +110,8 @@ export function SiteInformation({
 											).toLocaleDateString()}
 										</p>
 									</div>
-									<div className='bg-muted p-3 sm:p-4 rounded-lg flex-1 flex flex-col'>
-										<h4 className='text-xs sm:text-sm font-medium mb-1'>
+									<div className='bg-muted p-4 rounded-lg'>
+										<h4 className='text-sm font-medium mb-1'>
 											Monthly Visitors
 										</h4>
 										<p className='font-medium'>
@@ -128,39 +123,37 @@ export function SiteInformation({
 									</div>
 								</div>
 
-								{/* Action Buttons - Responsive Row/Column layout */}
-								<div className='flex flex-col sm:flex-row gap-3 w-full'>
+								{/* Action Buttons */}
+								<div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
 									<Button
 										variant='outline'
-										size='sm'
-										className='flex items-center justify-start h-auto py-2.5 flex-1 transition-transform hover:translate-y-[-2px]'
+										className='h-auto py-2.5 justify-start'
 										asChild
 									>
 										<Link
 											href={`https://${siteData.domain}/wp-admin`}
 											target='_blank'
 											rel='noopener'
-											className='w-full flex items-center'
+											className='flex items-center w-full'
 										>
-											<LogIn className='h-4 w-4 mr-2 flex-shrink-0' />
+											<LogIn className='h-4 w-4 mr-2' />
 											<span className='flex-grow text-left'>
 												WordPress Admin
 											</span>
-											<ExternalLink className='h-3.5 w-3.5 flex-shrink-0 opacity-70 ml-auto' />
+											<ExternalLink className='h-3.5 w-3.5 opacity-70 ml-auto' />
 										</Link>
 									</Button>
 
 									<Button
 										variant='outline'
-										size='sm'
-										className='flex items-center justify-start h-auto py-2.5 flex-1 transition-transform hover:translate-y-[-2px]'
+										className='h-auto py-2.5 justify-start'
 										asChild
 									>
 										<Link
 											href='/support'
-											className='w-full flex items-center'
+											className='flex items-center w-full'
 										>
-											<FileText className='h-4 w-4 mr-2 flex-shrink-0' />
+											<FileText className='h-4 w-4 mr-2' />
 											<span className='flex-grow text-left'>
 												Support
 											</span>
@@ -169,15 +162,14 @@ export function SiteInformation({
 
 									<Button
 										variant='outline'
-										size='sm'
-										className='flex items-center justify-start h-auto py-2.5 flex-1 transition-transform hover:translate-y-[-2px]'
+										className='h-auto py-2.5 justify-start'
 										asChild
 									>
 										<Link
 											href={`/sites/${siteData.id}/settings`}
-											className='w-full flex items-center'
+											className='flex items-center w-full'
 										>
-											<Settings className='h-4 w-4 mr-2 flex-shrink-0' />
+											<Settings className='h-4 w-4 mr-2' />
 											<span className='flex-grow text-left'>
 												Site Settings
 											</span>
@@ -185,20 +177,20 @@ export function SiteInformation({
 									</Button>
 								</div>
 
-								{/* Site Health - Conditional Render */}
+								{/* Site Health */}
 								{siteData &&
 									siteData.needsUpdate !== undefined && (
-										<div className='bg-muted p-3 sm:p-4 rounded-lg flex-grow flex flex-col max-w-md w-full mx-auto'>
+										<div className='bg-muted p-4 rounded-lg'>
 											<h4 className='text-sm font-medium mb-2'>
 												Site Health
 											</h4>
-											<div className='space-y-3 text-xs sm:text-sm flex-grow'>
+											<div className='space-y-3 text-sm'>
 												<div className='flex justify-between items-center'>
-													<span className='flex-grow'>
+													<span>
 														WordPress Updates:
 													</span>
 													<span
-														className={`flex-shrink-0 font-medium ${
+														className={`font-medium ${
 															siteData.wp_update
 																? 'text-amber-500'
 																: 'text-green-500'
@@ -210,27 +202,23 @@ export function SiteInformation({
 													</span>
 												</div>
 												<div className='flex justify-between items-center'>
-													<span className='flex-grow'>
-														Plugin Updates:
-													</span>
-													<span className='flex-shrink-0 font-medium'>
+													<span>Plugin Updates:</span>
+													<span className='font-medium'>
 														{
 															siteData.plugin_updates
 														}
 													</span>
 												</div>
 												<div className='flex justify-between items-center'>
-													<span className='flex-grow'>
-														Theme Updates:
-													</span>
-													<span className='flex-shrink-0 font-medium'>
+													<span>Theme Updates:</span>
+													<span className='font-medium'>
 														{siteData.theme_updates}
 													</span>
 												</div>
 												{siteData.coreUpdates &&
 													siteData.coreUpdates
 														.needed && (
-														<div className='text-amber-500 mt-3 text-xs sm:text-sm font-medium'>
+														<div className='text-amber-500 mt-3 text-sm font-medium'>
 															WordPress{' '}
 															{
 																siteData
@@ -248,8 +236,8 @@ export function SiteInformation({
 					</div>
 				</CardContent>
 
-				<CardFooter className='border-t mt-6 px-4 sm:px-6 py-4 sm:py-5'>
-					<div className='w-full text-center text-xs sm:text-sm text-muted-foreground'>
+				<CardFooter className='border-t'>
+					<div className='w-full text-center text-sm text-muted-foreground'>
 						{isPreBuild &&
 							'Submit your requirements to begin the process'}
 						{isBuilding && 'Your site is currently in development'}
