@@ -217,14 +217,7 @@ export function DeployedBanner({ domain }: DeployedBannerProps) {
 							Manage Backups
 						</ActionButton>
 
-						<ActionButton
-							href='/support/edit-request'
-							icon={<FileEdit className='h-4 w-4' />}
-							variant='outline'
-							className='transition-transform hover:translate-y-[-2px]'
-						>
-							Request Changes
-						</ActionButton>
+						
 					</ActionButtonGroup>
 				</CardContent>
 			</Card>
