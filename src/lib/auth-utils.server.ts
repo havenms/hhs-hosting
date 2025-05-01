@@ -51,7 +51,8 @@ export async function requireAdmin() {
 export async function authFetch(url: string, options: RequestInit = {}) {
 	const response = await fetch(url, {
 		...options,
-		credentials: 'include', // Important for sending cookies
+		// Ensure credentials are included to send cookies
+		credentials: 'include',
 		headers: {
 			'Content-Type': 'application/json',
 			...options.headers,
@@ -59,14 +60,12 @@ export async function authFetch(url: string, options: RequestInit = {}) {
 	});
 
 	if (!response.ok) {
-		// Try to get more details from the error
 		try {
 			const errorData = await response.json();
 			throw new Error(
 				errorData.error ||
 					`API request failed with status ${response.status}`
 			);
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (jsonError) {
 			throw new Error(
 				`API request failed with status ${response.status}`

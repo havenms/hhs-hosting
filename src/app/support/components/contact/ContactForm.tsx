@@ -4,18 +4,31 @@ import {
 	CardTitle,
 	CardDescription,
 	CardContent,
+	CardFooter,
 } from '@/components/ui/card';
-import { LifeBuoy } from 'lucide-react';
+import { LifeBuoy, AlertCircle } from 'lucide-react';
 import { SupportTicketForm } from './SupportTicketForm';
 import { QuickSupportLinks } from './QuickSupportLinks';
+import { useState } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface ContactFormProps {
 	onTabChange: (tab: string) => void;
 }
 
 export function ContactForm({ onTabChange }: ContactFormProps) {
+	const [submissionError, setSubmissionError] = useState<string | null>(null);
+
 	return (
-		<div className='grid  gap-8'>
+		<div className='grid gap-8'>
+			{submissionError && (
+				<Alert variant='destructive'>
+					<AlertCircle className='h-4 w-4' />
+					<AlertTitle>Error</AlertTitle>
+					<AlertDescription>{submissionError}</AlertDescription>
+				</Alert>
+			)}
+
 			<div>
 				<Card>
 					<CardHeader>
@@ -28,12 +41,17 @@ export function ContactForm({ onTabChange }: ContactFormProps) {
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<SupportTicketForm onTabChange={onTabChange} />
+						<SupportTicketForm
+							onTabChange={onTabChange}
+							onError={(error) => setSubmissionError(error)}
+						/>
 					</CardContent>
+					<CardFooter className='text-xs text-muted-foreground'>
+						Your request will be processed by our support team
+						within 24 hours.
+					</CardFooter>
 				</Card>
 			</div>
-
-			
 		</div>
 	);
 }

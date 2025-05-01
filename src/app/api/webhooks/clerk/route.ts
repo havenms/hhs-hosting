@@ -53,41 +53,35 @@ export async function POST(req: Request) {
 // Handle user creation in Clerk
 async function handleUserCreated(userData) {
 	try {
-		// Check if this is the first user in the system
-		const userCount = await prisma.user.count();
-		const isFirstUser = userCount === 0;
+		console.log('Creating user in database:', userData.id);
 
-		// Create the user in your database
+		// Check if this is an admin email (example rule)
+		const isAdmin =
+			userData.emailAddress?.includes('@havenmediasolutions.com') ||
+			userData.emailAddress === 'smsugrue@gmail.com';
+
+		// Create user in your database
 		await prisma.user.create({
 			data: {
 				id: userData.id,
-				name:
-					`${userData.first_name || ''} ${
-						userData.last_name || ''
-					}`.trim() ||
-					userData.username ||
-					'User',
-				email: userData.email_addresses[0]?.email_address,
-				isAdmin: isFirstUser, // First user is admin
-				role: isFirstUser ? 'admin' : 'user',
+				name: `${userData.firstName || ''} ${
+					userData.lastName || ''
+				}`.trim(),
+				email: userData.emailAddress,
+				isAdmin: isAdmin,
+				role: isAdmin ? 'admin' : 'user',
 			},
 		});
 
-		// If this is the first user, set them as admin in Clerk metadata
-		if (isFirstUser) {
-			await clerkClient.users.updateUser(userData.id, {
-				publicMetadata: { role: 'admin', isAdmin: true },
-			});
-		}
-
-		// Add this direct SQL check to fix first user if needed
+		// Update Clerk user metadata
 		await clerkClient.users.updateUser(userData.id, {
 			publicMetadata: {
-				role: 'admin', // String value
-				isAdmin: true, // Boolean value (both formats for compatibility)
+				role: isAdmin ? 'admin' : 'user',
+				isAdmin: isAdmin,
 			},
 		});
 
+		console.log(`User created with admin status: ${isAdmin}`);
 		return NextResponse.json({ success: true });
 	} catch (error) {
 		console.error('Error creating user in database:', error);

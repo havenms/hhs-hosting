@@ -9,8 +9,8 @@ interface SupportTabsProps {
 
 export function SupportTabs({ activeTab, isLoggedIn }: SupportTabsProps) {
 	return (
-		<div className='relative'>
-			<TabsList className='grid grid-cols-3 max-w-xl mx-auto relative'>
+		<div className='border-b'>
+			<TabsList className='w-full justify-start'>
 				<TabsTrigger
 					value='contact'
 					className='text-base py-3 relative group transition-all duration-300'
@@ -23,7 +23,7 @@ export function SupportTabs({ activeTab, isLoggedIn }: SupportTabsProps) {
 						}`}
 					/>
 					<span className='relative'>
-						Contact Us
+						Contact Support
 						{activeTab === 'contact' && (
 							<motion.span
 								className='absolute -bottom-1 left-0 right-0 h-0.5 bg-primary'
@@ -55,10 +55,10 @@ export function SupportTabs({ activeTab, isLoggedIn }: SupportTabsProps) {
 					</span>
 				</TabsTrigger>
 
+				{/* Make sure tickets tab is always enabled */}
 				<TabsTrigger
 					value='tickets'
 					className='text-base py-3 relative group transition-all duration-300'
-					disabled={!isLoggedIn}
 				>
 					<Clock
 						className={`w-4 h-4 mr-2 transition-all duration-300 ${

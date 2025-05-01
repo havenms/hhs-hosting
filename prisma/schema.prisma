@@ -15,16 +15,17 @@ datasource db {
 
 // Define your models based on your application needs
 model User {
-  id              String          @id
+  id              String           @id
   name            String?
-  email           String?         @unique
-  isAdmin         Boolean         @default(false)
-  role            String          @default("user")
+  email           String?          @unique
+  isAdmin         Boolean          @default(false)
+  role            String           @default("user")
   sites           Site[]
   tickets         Ticket[]
+  ticketResponses TicketResponse[] // Add this line
   editRequests    EditRequest[]
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   plan            String?
   company         String?
   phoneNumber     String?
@@ -62,17 +63,23 @@ model Timeline {
 }
 
 model Ticket {
-  id          String    @id @default(cuid())
-  subject     String
-  description String
-  status      String    @default("open")
-  priority    String    @default("medium")
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
-  siteId      String?
-  site        Site?     @relation(fields: [siteId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id             String    @id @default(cuid())
+  subject        String
+  description    String
+  status         String    @default("open")
+  priority       String    @default("medium")
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  siteId         String?
+  site           Site?     @relation(fields: [siteId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  category       String?
+  attachments    String?   // JSON string to store file URLs and metadata
+  responses      TicketResponse[]
+  lastUpdateNote String?
+  closedAt       DateTime?
+  closedBy       String?
 }
 
 model EditRequest {
@@ -111,4 +118,19 @@ model PendingAction {
   site        Site     @relation(fields: [siteId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model TicketResponse {
+  id             String   @id @default(cuid())
+  message        String   @db.Text
+  url            String?
+  urlLabel       String?
+  ticketId       String
+  ticket         Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  authorName     String?
+  authorEmail    String? 
+  isAdminResponse Boolean @default(false)
+  createdAt      DateTime @default(now())
 }

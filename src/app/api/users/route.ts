@@ -1,7 +1,7 @@
 // src/app/api/users/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
-import { createClerkClient } from '@clerk/backend';
+import { createClerkClient } from '@clerk/clerk-sdk-node';
 import prisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -17,33 +17,65 @@ export async function GET(request: NextRequest) {
 			);
 		}
 
-		// Create Clerk client
+		// Create Clerk client once and reuse it
 		const clerk = createClerkClient({
 			secretKey: process.env.CLERK_SECRET_KEY,
 		});
 
-		// Get admin user
-		const adminUser = await clerk.users.getUser(userId);
-		console.log('API Route - User metadata:', adminUser.publicMetadata);
+		// Fetch current user and check if admin
+		let clerkUser;
+		let isAdmin = false;
+		try {
+			clerkUser = await clerk.users.getUser(userId);
+			console.log(
+				'API Route - User metadata:',
+				clerkUser?.publicMetadata
+			);
 
-		// Check if admin
-		const isAdmin =
-			adminUser.publicMetadata?.role === 'admin' ||
-			adminUser.publicMetadata?.isAdmin === true;
+			isAdmin =
+				clerkUser?.publicMetadata?.role === 'admin' ||
+				clerkUser?.publicMetadata?.isAdmin === true;
+		} catch (error) {
+			console.error('Error fetching Clerk user:', error);
+			// Check database for admin status as fallback
+			try {
+				const dbUser = await prisma.user.findUnique({
+					where: { id: userId },
+					select: { isAdmin: true, role: true },
+				});
+
+				console.log('Admin route - User DB record:', dbUser);
+
+				isAdmin = dbUser?.isAdmin === true || dbUser?.role === 'admin';
+				console.log('Admin route - DB checks:', {
+					hasDbAdminRole: dbUser?.role === 'admin',
+					hasDbAdminFlag: dbUser?.isAdmin === true,
+				});
+			} catch (dbError) {
+				console.error('Error checking DB for admin status:', dbError);
+			}
+		}
 
 		if (!isAdmin) {
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 		}
 
-		// Get all users from Clerk
-		const { data: clerkUsers } = await clerk.users.getUserList();
+		// Get all users from Clerk (reusing clerk client)
+		let clerkUsers = [];
+		try {
+			const response = await clerk.users.getUserList();
+			clerkUsers = response.data || [];
+		} catch (error) {
+			console.error('Failed to fetch users from Clerk:', error);
+			// Continue with empty array
+		}
 
 		// Get users from database with fixed query
 		const dbUsers = await prisma.user.findMany({
 			include: {
 				sites: true,
-				tickets: true, // Include all tickets
-				editRequests: true, // Include all edit requests
+				tickets: true,
+				editRequests: true,
 				billingHistory: true,
 			},
 		});
@@ -77,11 +109,35 @@ export async function GET(request: NextRequest) {
 			};
 		});
 
+		// Add database users that might not be in Clerk
+		dbUsers.forEach((dbUser) => {
+			if (!users.some((user) => user.id === dbUser.id)) {
+				users.push({
+					id: dbUser.id,
+					name: dbUser.name || 'Database User',
+					email: dbUser.email || '',
+					signupDate: dbUser.createdAt,
+					status: dbUser.status || 'active',
+					sites: dbUser.sites?.length || 0,
+					tickets: dbUser.tickets?.length || 0,
+					editRequests: dbUser.editRequests?.length || 0,
+					phone: dbUser.phoneNumber || '',
+					company: dbUser.company || '',
+					plan: dbUser.plan || '',
+					nextBillingDate: dbUser.nextBillingDate || null,
+					paymentMethod: dbUser.paymentMethod || '',
+					billingHistory: dbUser.billingHistory || [],
+					isAdmin: dbUser.isAdmin || false,
+					role: dbUser.role || 'user',
+				});
+			}
+		});
+
 		return NextResponse.json(users);
 	} catch (error) {
 		console.error('Failed to fetch users:', error);
 		return NextResponse.json(
-			{ error: 'Failed to fetch users' },
+			{ error: 'Failed to fetch users', details: error.message },
 			{ status: 500 }
 		);
 	}

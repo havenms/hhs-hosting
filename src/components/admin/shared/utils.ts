@@ -13,3 +13,16 @@ export function getDaysRemaining(dateString: string) {
 	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 	return diffDays > 0 ? diffDays : 0;
 }
+
+export function formatDateWithTime(dateString: string): string {
+	if (!dateString) return 'N/A';
+
+	const date = new Date(dateString);
+	return date.toLocaleString('en-US', {
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric',
+		hour: 'numeric',
+		minute: '2-digit',
+	});
+}

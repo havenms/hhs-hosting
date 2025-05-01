@@ -9,15 +9,11 @@ async function main() {
 			id: 'user_2w9GGGg4jloexIxcM7zwcQiv4xL', // Replace with real Clerk ID
 			name: 'Kevin Jimoh',
 			email: 'kevin@havenmediasolutions.com',
-			isAdmin: true,
-			role: 'admin',
 		},
 		{
 			id: 'user_2w95wDnbRaewzhpZKvZLtGsXJdW', // Replace with real Clerk ID
 			name: 'Sean Sugrue',
 			email: 'sean@havenmediasolutions.com',
-			isAdmin: true,
-			role: 'admin',
 		},
 		{
 			id: 'user_2w8h5tsNvhZ5sc4ljj5XXLH38WI', // Replace with real Clerk ID
