@@ -6,143 +6,68 @@ import { authFetch } from '@/lib/auth-utils';
 import { LoadingState } from '@/components/shared/LoadingState';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { DashboardStats } from './cards/DashboardStats';
-import { InboxTab } from './inbox/InboxTab';
-import { UsersTab } from './users/UsersTab';
-import { BillingTab } from './billing/BillingTab';
-import { ActivityOverview } from './overview/ActivityOverview';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 
 export function AdminDashboard() {
 	const [users, setUsers] = useState([]);
-	const [siteProjects, setSiteProjects] = useState([]);
 	const [supportTickets, setSupportTickets] = useState([]);
-	const [editRequests, setEditRequests] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [isRefreshing, setIsRefreshing] = useState(false);
 
-	// Fetch data
-	useEffect(() => {
-		fetchUsers();
-	}, []);
-
-	const fetchUsers = async () => {
+	// Fetch data function that can be reused
+	const fetchDashboardData = async () => {
 		try {
 			setLoading(true);
-			const response = await authFetch('/api/users');
+			setError(null);
 
-			if (!response) {
-				throw new Error('No response from server');
-			}
+			// Fetch users data
+			const usersResponse = await authFetch('/api/users');
+			if (!usersResponse.ok) throw new Error('Failed to fetch users');
+			const usersData = await usersResponse.json();
 
-			const clerkUsers = await response.json();
+			// Fetch tickets data
+			const ticketsResponse = await authFetch('/api/tickets/admin');
+			if (!ticketsResponse.ok) throw new Error('Failed to fetch tickets');
+			const ticketsData = await ticketsResponse.json();
 
-			setUsers(
-				clerkUsers.map((user) => ({
-					id: user.id,
-					name:
-						user.name ||
-						`${user.firstName || ''} ${
-							user.lastName || ''
-						}`.trim() ||
-						user.email?.split('@')[0] ||
-						'No Name',
-					email: user.email || '',
-					signupDate:
-						user.signupDate ||
-						user.createdAt ||
-						new Date().toISOString(),
-					status: user.status || 'active',
-					sites: user.sites || 0,
-					tickets: user.tickets || 0,
-					editRequests: user.editRequests || 0,
-					phone: user.phone || '',
-					company: user.company || '',
-					plan: user.plan || '',
-					nextBillingDate: user.nextBillingDate || null,
-					paymentMethod: user.paymentMethod || '',
-					billingHistory: user.billingHistory || [],
-					isAdmin: user.isAdmin || false,
-					role: user.role || 'user',
-				}))
-			);
+			setUsers(usersData);
+			setSupportTickets(ticketsData);
 
-			setSiteProjects([
-				{
-					id: 'project1',
-					siteName: 'Demo Business Site',
-					clientName: 'ABC Company',
-					domain: 'example.com',
-					stage: 'development',
-					progress: 65,
-					estimatedCompletion: new Date(
-						Date.now() + 14 * 86400000
-					).toISOString(),
-					pendingActions: [
-						{
-							type: 'approval',
-							description: 'Logo approval needed',
-						},
-					],
-					userId: 'user1',
-					email: 'client@example.com',
-				},
-				{
-					id: 'project2',
-					siteName: 'Nonprofit Organization',
-					clientName: 'XYZ Foundation',
-					domain: 'xyzfoundation.org',
-					stage: 'design',
-					progress: 30,
-					estimatedCompletion: new Date(
-						Date.now() + 30 * 86400000
-					).toISOString(),
-					pendingActions: [],
-					userId: 'user2',
-					email: 'info@xyzfoundation.org',
-				},
-			]);
-
-			setSupportTickets([
-				{
-					id: 'ticket1',
-					issue: 'Website Loading Slow',
-					description: 'The homepage takes too long to load',
-					status: 'open',
-					priority: 'high',
-					dateOpened: new Date().toISOString(),
-					siteName: 'Demo Business Site',
-					userId: 'user1',
-					browser: 'Chrome',
-				},
-				{
-					id: 'ticket2',
-					issue: 'Contact Form Not Working',
-					description: 'Submissions are not being received',
-					status: 'in-progress',
-					priority: 'medium',
-					dateOpened: new Date(
-						Date.now() - 2 * 86400000
-					).toISOString(),
-					siteName: 'XYZ Foundation',
-					userId: 'user2',
-					browser: 'Firefox',
-				},
-			]);
-
-			
+			console.log('Dashboard data loaded:', {
+				users: usersData.length,
+				tickets: ticketsData.length,
+			});
 		} catch (err) {
-			console.error('Error fetching users:', err);
-			setError(err.message);
+			console.error('Error loading dashboard data:', err);
+			setError(
+				err instanceof Error
+					? err.message
+					: 'Failed to load dashboard data'
+			);
 		} finally {
 			setLoading(false);
+			setIsRefreshing(false);
 		}
 	};
+
+	// Handle manual refresh
+	const handleRefresh = () => {
+		setIsRefreshing(true);
+		fetchDashboardData();
+	};
+
+	// Initial data load
+	useEffect(() => {
+		fetchDashboardData();
+	}, []);
 
 	return (
 		<div className='min-h-screen bg-background'>
 			<div className='flex'>
 				<main className='flex-1 p-4 md:p-6 overflow-auto'>
-					{loading ? (
+					{loading && !isRefreshing ? (
 						<LoadingState />
 					) : error ? (
 						<ErrorState message={error} />
@@ -152,58 +77,32 @@ export function AdminDashboard() {
 								<h1 className='text-2xl sm:text-3xl font-bold'>
 									Admin Dashboard
 								</h1>
-								{/* Your action buttons */}
+
+								<Button
+									onClick={handleRefresh}
+									variant='outline'
+									size='sm'
+									disabled={isRefreshing}
+								>
+									<RefreshCw
+										className={`h-4 w-4 mr-2 ${
+											isRefreshing ? 'animate-spin' : ''
+										}`}
+									/>
+									{isRefreshing
+										? 'Refreshing...'
+										: 'Refresh Data'}
+								</Button>
 							</div>
 
+							{/* Pass the fetched data to DashboardStats */}
 							<DashboardStats
 								supportTickets={supportTickets}
 								users={users}
+								prefetchedData={true} // Tell component data is already fetched
 							/>
 
-							<Tabs
-								defaultValue='inbox'
-								className='mb-6'
-							>
-								<TabsList className='mb-4 w-full sm:w-auto overflow-auto'>
-									<TabsTrigger value='inbox'>
-										Unified Inbox
-									</TabsTrigger>
-									<TabsTrigger value='users'>
-										User Management
-									</TabsTrigger>
-									<TabsTrigger value='billing'>
-										Billing
-									</TabsTrigger>
-								</TabsList>
-
-								<TabsContent value='inbox'>
-									<InboxTab
-										editRequests={editRequests}
-										supportTickets={supportTickets}
-									/>
-								</TabsContent>
-
-								<TabsContent value='users'>
-									<UsersTab
-										users={users}
-										projects={siteProjects}
-										tickets={supportTickets}
-										requests={editRequests}
-									/>
-								</TabsContent>
-
-								<TabsContent value='billing'>
-									<BillingTab users={users} />
-								</TabsContent>
-							</Tabs>
-
-							<div className='grid grid-cols-1 gap-6'>
-								<ActivityOverview
-									tickets={supportTickets}
-									requests={editRequests}
-									users={users}
-								/>
-							</div>
+							{/* Other dashboard components */}
 						</>
 					)}
 				</main>

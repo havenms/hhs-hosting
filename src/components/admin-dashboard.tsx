@@ -1001,7 +1001,7 @@ export function AdminDashboard() {
 									<CardHeader>
 										<CardTitle className='flex items-center gap-2'>
 											<Inbox className='h-5 w-5 text-primary' />
-											Recent User Activity
+											Recent Users Activity
 										</CardTitle>
 										<CardDescription>
 											Latest actions across the platform

@@ -103,11 +103,7 @@ export function AnalyticsOverview({
 								? 'Analytics will be available once your website is deployed and starts receiving traffic.'
 								: 'Complete your site requirements to start the development process.'}
 						</p>
-						<Button variant='outline'>
-							{isBuilding
-								? 'View Project Timeline'
-								: 'Start Requirements Form'}
-						</Button>
+					
 					</div>
 				)}
 			</CardContent>
