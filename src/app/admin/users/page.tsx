@@ -2,7 +2,7 @@
 
 import { useUser } from '@clerk/nextjs';
 import { useEffect, useState } from 'react';
-import { AdminLayout } from '@/components/admin-layout';
+import { AdminLayout } from '../components/admin-layout';
 import { Button } from '@/components/ui/button';
 import {
 	Table,

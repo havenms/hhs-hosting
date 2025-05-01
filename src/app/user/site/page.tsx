@@ -6,12 +6,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 
 // Import component parts
-import { SiteHeader } from '@/components/user/site/header/SiteHeader';
-import { SiteStatusCard } from '@/components/user/site/overview/SiteStatusCard';
-import { QuickActionsCard } from '@/components/user/site/overview/QuickActionsCard';
-import { AnalyticsOverview } from '@/components/user/site/analytics/AnalyticsOverview';
-import { DetailedAnalytics } from '@/components/user/site/analytics/DetailedAnalytics';
-import { ProjectStageSwitcher } from '@/components/user/site/ProjectStageSwitcher';
+import { SiteHeader } from '../components/site/header/SiteHeader';
+import { SiteStatusCard } from '../components/site/overview/SiteStatusCard';
+import { QuickActionsCard } from '../components/site/overview/QuickActionsCard';
+import { AnalyticsOverview } from '../components/site/analytics/AnalyticsOverview';
+import { DetailedAnalytics } from '../components/site/analytics/DetailedAnalytics';
+import { ProjectStageSwitcher } from '../components/site/ProjectStageSwitcher';
 
 // Mock data - this would come from API in production
 const siteData = {
@@ -51,6 +51,7 @@ const visitorData = [
 ];
 
 export default function SiteOverviewPage() {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { user, isLoading } = useAuth();
 	const [mounted, setMounted] = useState(false);
 	const [activeSection, setActiveSection] = useState('overview');

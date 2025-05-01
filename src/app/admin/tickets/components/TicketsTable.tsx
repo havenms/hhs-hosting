@@ -10,9 +10,9 @@ import { Button } from '@/components/ui/button';
 import {
 	TicketStatusBadge,
 	TicketPriorityBadge,
-} from '@/components/admin/shared/StatusBadges';
+} from '../../components/shared/StatusBadges';
 import { ChevronRight } from 'lucide-react';
-import { formatDate } from '@/components/admin/shared/utils';
+import { formatDate } from '../../components/shared/utils';
 import { SupportTicket } from '../types';
 
 interface TicketsTableProps {

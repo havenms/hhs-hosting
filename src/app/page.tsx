@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/auth-provider';
 import { GuestHomePage } from '@/components/guest-homepage';
-import { Dashboard } from '@/components/dashboard'; // Import the new component
 import { LoadingState } from '@/components/loading-state';
 import { DiscoMode } from '@/components/disco-mode';
 
@@ -27,8 +25,7 @@ export default function Home() {
 				showButton={true}
 			/>
 
-			{/* Content - Using the new Dashboard component */}
-			{user ? <Dashboard /> : <GuestHomePage />}
+			 <GuestHomePage />
 		</>
 	);
 }

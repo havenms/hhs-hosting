@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AdminLayout } from '@/components/admin-layout';
+import { AdminLayout } from '../components/admin-layout';
 import { Button } from '@/components/ui/button';
 import { SupportTicket, TicketStats } from './types';
 import { TicketFilters } from './components/TicketFilters';

@@ -4,9 +4,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { AdminDebug } from '@/components/admin-debug';
-import { AdminNavbar } from '@/components/admin-navbar'; // Import the navbar
-import { AdminSidebar } from '@/components/admin-sidebar'; // Import the sidebar
+import { AdminDebug } from './components/admin-debug';
+import { AdminNavbar } from './components/admin-navbar'; // Import the navbar
+import { AdminSidebar } from './components/admin-sidebar'; // Import the sidebar
 
 export default function AdminLayout({
 	children,

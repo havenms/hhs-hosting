@@ -109,7 +109,7 @@ export default function SupportPage() {
 			<div className='min-h-screen flex flex-col items-center justify-center'>
 				<p className='text-xl font-bold mb-2'>Access Denied</p>
 				<p className='text-muted-foreground mb-6'>
-					You don't have access to this page.
+					You don&apos;t have access to this page.
 				</p>
 				<button
 					onClick={() => router.push('/')}

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Navbar } from '@/components/navbar';
 import { useAuth } from '@/components/auth-provider';
 import { DiscoMode } from '@/components/disco-mode';
@@ -8,10 +7,9 @@ import { DiscoMode } from '@/components/disco-mode';
 // Import components
 import { PricingHero } from './components/PricingHero';
 import { SimplePricingCard } from './components/SimplePricingCard';
-import { PricingCTA } from './components/PricingCTA';
 
 export default function PricingPage() {
-	const { user, isLoading } = useAuth();
+	const { isLoading } = useAuth();
 
 	return (
 		<div className='min-h-screen bg-background'>
@@ -28,7 +26,7 @@ export default function PricingPage() {
 
 			<footer className='bg-muted py-8 px-4 mt-12'>
 				<div className='container mx-auto text-center text-muted-foreground'>
-					<p>&copy; 2023 HHS Hosting. All rights reserved.</p>
+					<p>&copy; 2025 NHHS Hosting. All rights reserved.</p>
 				</div>
 			</footer>
 		</div>

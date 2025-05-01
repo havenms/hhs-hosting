@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useAuth } from '@/hooks/useAuth';
 import {
 	Card,
 	CardContent,
@@ -29,16 +28,13 @@ import {
 	ChevronRight,
 	Shield,
 	CheckCircle2,
-	AlertCircle,
-	ArrowUpRight,
 	Wallet,
 	Receipt,
 } from 'lucide-react';
-import { BillingDebug } from '@/components/billing-debug';
+import { BillingDebug } from '../components/billing-debug';
 
 
 export default function BillingPage() {
-	const { user, isLoading } = useAuth();
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
