@@ -4,10 +4,11 @@ import prisma from '@/lib/prisma';
 
 export async function PATCH(
 	request: NextRequest,
-	{ params }: { params: { id: string } }
+	context: { params: { id: string } }
 ) {
 	try {
 		const { userId } = getAuth(request);
+		const { id } = context.params
 
 		if (!userId) {
 			return NextResponse.json(

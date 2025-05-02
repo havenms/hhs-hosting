@@ -66,10 +66,11 @@ export async function GET(
 // Add a response to a ticket
 export async function POST(
 	request: NextRequest,
-	{ params }: { params: { id: string } }
+	context:  { params: { id: string } }
 ) {
 	try {
 		const { userId } = getAuth(request);
+		const { id } = context.params
 
 		if (!userId) {
 			return NextResponse.json(
@@ -78,7 +79,7 @@ export async function POST(
 			);
 		}
 
-		console.log('Adding response to ticket:', params.id);
+		console.log('Adding response to ticket:', id);
 
 		// Get the request data
 		const { message, url, urlLabel } = await request.json();
