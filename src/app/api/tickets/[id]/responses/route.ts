@@ -5,10 +5,11 @@ import prisma from '@/lib/prisma';
 // Get responses for a ticket
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: { id: string } }
+	context: { params: { id: string } }
 ) {
 	try {
 		const { userId } = getAuth(request);
+		const { id } = context.params; // Extract ID from context
 
 		if (!userId) {
 			return NextResponse.json(
@@ -17,7 +18,7 @@ export async function GET(
 			);
 		}
 
-		console.log('Fetching responses for ticket:', params.id);
+		console.log('Fetching responses for ticket:', id);
 
 		// Check if user is admin
 		const user = await prisma.user.findUnique({
@@ -29,8 +30,8 @@ export async function GET(
 
 		// Query condition based on user role
 		const whereCondition = isAdmin
-			? { id: params.id } // Admin can see any ticket
-			: { id: params.id, userId }; // Regular users can only see their own tickets
+			? { id } // Admin can see any ticket
+			: { id, userId }; // Regular users can only see their own tickets
 
 		// First verify the ticket exists and user has access
 		const ticket = await prisma.ticket.findUnique({
@@ -46,7 +47,7 @@ export async function GET(
 
 		// Get responses for this ticket
 		const responses = await prisma.ticketResponse.findMany({
-			where: { ticketId: params.id },
+			where: { ticketId: id },
 			orderBy: { createdAt: 'asc' },
 		});
 
@@ -66,11 +67,11 @@ export async function GET(
 // Add a response to a ticket
 export async function POST(
 	request: NextRequest,
-	context:  { params: { id: string } }
+	context: { params: { id: string } }
 ) {
 	try {
 		const { userId } = getAuth(request);
-		const { id } = context.params
+		const { id } = context.params; // Extract ID from context
 
 		if (!userId) {
 			return NextResponse.json(
@@ -103,7 +104,7 @@ export async function POST(
 			// For non-admin users, check if the ticket belongs to them
 			const ticket = await prisma.ticket.findUnique({
 				where: {
-					id: params.id,
+					id,
 					userId,
 				},
 			});
@@ -122,7 +123,7 @@ export async function POST(
 				message,
 				url: url || null,
 				urlLabel: urlLabel || null,
-				ticketId: params.id,
+				ticketId: id,
 				userId,
 				authorName:
 					user?.name || (isAdmin ? 'Support Agent' : 'Client'),
@@ -133,7 +134,7 @@ export async function POST(
 
 		// Update ticket status and timestamp
 		await prisma.ticket.update({
-			where: { id: params.id },
+			where: { id },
 			data: {
 				status: isAdmin ? 'in-progress' : 'open', // If admin replies, set to in-progress
 				updatedAt: new Date(),

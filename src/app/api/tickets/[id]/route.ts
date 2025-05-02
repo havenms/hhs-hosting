@@ -8,7 +8,7 @@ export async function PATCH(
 ) {
 	try {
 		const { userId } = getAuth(request);
-		const { id } = context.params
+		const { id } = context.params; // Extract ID from context
 
 		if (!userId) {
 			return NextResponse.json(
@@ -57,7 +57,7 @@ export async function PATCH(
 
 		// Update the ticket
 		const updatedTicket = await prisma.ticket.update({
-			where: { id: params.id },
+			where: { id: id },
 			data: updateData,
 		});
 

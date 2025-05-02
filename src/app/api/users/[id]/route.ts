@@ -9,11 +9,16 @@ interface Params {
 }
 
 // Get a specific user
-export async function GET(request: NextRequest, { params }: Params) {
+export async function GET(
+	request: NextRequest,
+	context: { params: { id: string } }
+) {
 	try {
+		const { id } = context.params;
+
 		const user = await prisma.user.findUnique({
 			where: {
-				id: params.id,
+				id: id,
 			},
 			include: {
 				sites: true,
@@ -40,13 +45,17 @@ export async function GET(request: NextRequest, { params }: Params) {
 }
 
 // Update a user
-export async function PUT(request: NextRequest, { params }: Params) {
+export async function PUT(
+	request: NextRequest,
+	context: { params: { id: string } }
+) {
 	try {
+		const { id } = context.params;
 		const body = await request.json();
 
 		const updatedUser = await prisma.user.update({
 			where: {
-				id: params.id,
+				id: id,
 			},
 			data: {
 				name: body.name,
@@ -67,11 +76,16 @@ export async function PUT(request: NextRequest, { params }: Params) {
 }
 
 // Delete a user
-export async function DELETE(request: NextRequest, { params }: Params) {
+export async function DELETE(
+	request: NextRequest,
+	context: { params: { id: string } }
+) {
 	try {
+		const { id } = context.params;
+
 		await prisma.user.delete({
 			where: {
-				id: params.id,
+				id: id,
 			},
 		});
 
