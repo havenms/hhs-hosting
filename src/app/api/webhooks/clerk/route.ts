@@ -1,7 +1,7 @@
 // src/app/api/webhooks/clerk/route.ts
 import { Webhook } from 'svix';
 import { headers } from 'next/headers';
-import { clerkClient } from '@clerk/nextjs';
+import { clerkClient } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
