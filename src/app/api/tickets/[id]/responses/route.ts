@@ -5,11 +5,11 @@ import prisma from '@/lib/prisma';
 // Get responses for a ticket
 export async function GET(
 	request: NextRequest,
-	context: { params: { id: string } }
+	{ params }: { params: { id: string } }
 ) {
 	try {
 		const { userId } = getAuth(request);
-		const { id } = context.params; // Extract ID from context
+		const { id } = params; // Extract ID from params
 
 		if (!userId) {
 			return NextResponse.json(
@@ -67,11 +67,11 @@ export async function GET(
 // Add a response to a ticket
 export async function POST(
 	request: NextRequest,
-	context: { params: { id: string } }
+	{ params }: { params: { id: string } }
 ) {
 	try {
 		const { userId } = getAuth(request);
-		const { id } = context.params; // Extract ID from context
+		const { id } = params; // Extract ID from params
 
 		if (!userId) {
 			return NextResponse.json(
