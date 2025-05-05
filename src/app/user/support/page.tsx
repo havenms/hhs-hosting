@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DiscoMode } from '@/components/disco-mode';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { ArrowRight, MessageSquare, HelpCircle, Clock } from 'lucide-react';
+import { MessageSquare, HelpCircle, Clock } from 'lucide-react';
 import { useAuth } from '@/components/auth-provider';
 
 // Import components

@@ -22,17 +22,40 @@ import {
 import { EditRequestDetailView } from './RequestDetailView';
 import { SupportTicketDetailView } from './TicketDetailView';
 
+interface EditRequest {
+  id: string | number;
+  clientName: string;
+  siteName: string;
+  description: string;
+  status: string;
+  requestDate: string | Date;
+}
+
+interface SupportTicket {
+  id: string | number;
+  clientName: string;
+  siteName: string;
+  issue: string;
+  status: string;
+  dateOpened: string | Date;
+  priority?: string;
+}
+
 interface UnifiedInboxViewProps {
-	editRequests: any[];
-	supportTickets: any[];
+	editRequests: EditRequest[];
+	supportTickets: SupportTicket[];
 }
 
 export function UnifiedInboxView({
 	editRequests,
 	supportTickets,
 }: UnifiedInboxViewProps) {
-	const [viewMode, setViewMode] = useState('list');
-	const [selectedItem, setSelectedItem] = useState<any>(null);
+	const [viewMode] = useState('list');
+	type EditRequestWithType = EditRequest & { type: 'edit' };
+	type SupportTicketWithType = SupportTicket & { type: 'support' };
+	type InboxItem = EditRequestWithType | SupportTicketWithType;
+	
+	const [selectedItem, setSelectedItem] = useState<InboxItem | null>(null);
 
 	// Combine all inbox items and sort by date (newest first)
 	const allItems = [

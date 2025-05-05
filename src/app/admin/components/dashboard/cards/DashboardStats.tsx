@@ -16,9 +16,20 @@ import {
 	CardFooter,
 } from '@/components/ui/card';
 
+interface SupportTicket {
+	status: 'open' | 'in-progress' | 'closed';
+	priority: 'high' | 'medium' | 'low';
+	category?: string;
+}
+
+interface User {
+	status: string;
+	// Add other properties as needed
+}
+
 interface DashboardStatsProps {
-	supportTickets: any[];
-	users: any[];
+	supportTickets: SupportTicket[];
+	users: User[];
 }
 
 export function DashboardStats({ supportTickets, users }: DashboardStatsProps) {
@@ -45,7 +56,7 @@ export function DashboardStats({ supportTickets, users }: DashboardStatsProps) {
 	).length;
 
 	// Count tickets by category
-	const ticketCategories = supportTickets.reduce((acc, ticket) => {
+	const ticketCategories = supportTickets.reduce<Record<string, number>>((acc, ticket) => {
 		const category = ticket.category || 'uncategorized';
 		acc[category] = (acc[category] || 0) + 1;
 		return acc;

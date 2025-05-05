@@ -6,7 +6,6 @@ import {
 	FileEdit,
 	TicketCheck,
 	User,
-	CheckCircle,
 	Clock,
 } from 'lucide-react';
 import {
@@ -45,10 +44,30 @@ function ActivityItem({ icon, title, description, time }) {
 	);
 }
 
+interface Ticket {
+  id: string | number;
+  status: string;
+  issue: string;
+  dateOpened: string;
+}
+
+interface Request {
+  id: string | number;
+  clientName: string;
+  siteName: string;
+  requestDate: string;
+}
+
+interface User {
+  id: string | number;
+  name: string;
+  signupDate: string;
+}
+
 interface ActivityOverviewProps {
-	tickets: any[];
-	requests: any[];
-	users: any[];
+	tickets: Ticket[];
+	requests: Request[];
+	users: User[];
 }
 
 export function ActivityOverview({

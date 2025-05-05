@@ -4,13 +4,9 @@ import React from 'react';
 import Link from 'next/link';
 import {
 	Users,
-	BarChart3,
-	Settings,
 	Shield,
 	LayoutGrid,
-	FileEdit,
 	TicketCheck,
-	CalendarClock,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';

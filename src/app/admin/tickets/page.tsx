@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from '../components/admin-layout';
 import { Button } from '@/components/ui/button';
 import { SupportTicket, TicketStats } from './types';
@@ -28,7 +28,7 @@ export default function TicketsPage() {
 	const [isRefreshing, setIsRefreshing] = useState(false);
 
 	// Fetch tickets data
-	const handleFetchTickets = async () => {
+	const handleFetchTickets = useCallback(async () => {
 		try {
 			setIsRefreshing(true);
 			setError(null);
@@ -49,12 +49,12 @@ export default function TicketsPage() {
 			setLoading(false);
 			setIsRefreshing(false);
 		}
-	};
+	}, [searchTerm, statusFilter, priorityFilter]);
 
 	// Initial data fetch
 	useEffect(() => {
 		handleFetchTickets();
-	}, []);
+	}, [handleFetchTickets]);
 
 	// Filter and sort tickets
 	const filteredTickets = tickets

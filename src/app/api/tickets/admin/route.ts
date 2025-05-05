@@ -84,7 +84,16 @@ export async function GET(request: NextRequest) {
 			request.nextUrl.searchParams.get('priority') || '';
 
 		// Build filter conditions
-		const whereConditions: any = {};
+		interface TicketWhereConditions {
+			OR?: Array<{
+				subject?: { contains: string; mode: string };
+				description?: { contains: string; mode: string };
+			}>;
+			status?: string;
+			priority?: string;
+		}
+		
+		const whereConditions: TicketWhereConditions = {};
 
 		// Add search filter if provided
 		if (searchTerm) {

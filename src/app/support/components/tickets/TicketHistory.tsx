@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
 	Card,
 	CardHeader,
@@ -17,23 +17,20 @@ import {
 } from 'lucide-react';
 import { TicketTable } from './TicketTable';
 import { ticketHistory } from '../../data/tickethistory';
-import { useAuth } from '@/components/auth-provider';
+import { useAuth } from '@/hooks/useAuth';
 
 interface TicketHistoryProps {
-	isLoggedIn: boolean;
 	onTabChange: (tab: string) => void;
 }
 
-export function TicketHistory({ isLoggedIn, onTabChange }: TicketHistoryProps) {
+export function TicketHistory({ onTabChange }: TicketHistoryProps) {
 	const { user } = useAuth();
 	const [refreshCounter, setRefreshCounter] = useState(0);
 	const [userTickets, setUserTickets] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
-	// Fetch user tickets from API
-	const fetchUserTickets = async () => {
-		// Since we're already on a protected page, we can assume the user is authenticated
+	const fetchUserTickets = useCallback(async () => {
 		setLoading(true);
 		setError(null);
 
@@ -57,7 +54,6 @@ export function TicketHistory({ isLoggedIn, onTabChange }: TicketHistoryProps) {
 			const data = await response.json();
 			console.log(`Received ${data.length} tickets from API`);
 
-			// Format tickets for display
 			const formattedTickets = data.map((ticket) => ({
 				id: ticket.id || `TKT-${Math.floor(Math.random() * 10000)}`,
 				subject: ticket.subject,
@@ -83,13 +79,11 @@ export function TicketHistory({ isLoggedIn, onTabChange }: TicketHistoryProps) {
 				messages: ticket.messages || 0,
 			}));
 
-			// Always update state regardless of whether array is empty
 			setUserTickets(formattedTickets);
 		} catch (err) {
 			console.error('Error fetching tickets:', err);
 			setError('Could not load your tickets. Please try again later.');
 
-			// Only use mock data in development as fallback
 			if (process.env.NODE_ENV === 'development') {
 				console.log('Using mock ticket data as fallback');
 				setUserTickets(ticketHistory);
@@ -97,18 +91,15 @@ export function TicketHistory({ isLoggedIn, onTabChange }: TicketHistoryProps) {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [user?.id]);
 
-	// Fetch tickets on component mount and when refreshCounter changes
 	useEffect(() => {
 		fetchUserTickets();
-	}, [refreshCounter]);
+	}, [refreshCounter, fetchUserTickets]);
 
 	const handleRefresh = () => {
 		setRefreshCounter((prev) => prev + 1);
 	};
-
-	// No need to check isLoggedIn since this page is already protected
 
 	return (
 		<Card>
@@ -142,7 +133,7 @@ export function TicketHistory({ isLoggedIn, onTabChange }: TicketHistoryProps) {
 							No tickets found
 						</h3>
 						<p className='text-muted-foreground mb-4'>
-							You haven't submitted any support tickets yet.
+							You haven&apos;t submitted any support tickets yet.
 						</p>
 						<Button
 							onClick={() => onTabChange('contact')}

@@ -4,11 +4,8 @@ import {
 	LifeBuoy,
 	FileEdit,
 	ExternalLink,
-	ArrowRight,
 	RefreshCw,
-	Settings,
 	Calendar,
-	PlusCircle,
 } from 'lucide-react';
 
 interface ActionButtonProps {

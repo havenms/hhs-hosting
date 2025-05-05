@@ -50,7 +50,7 @@ export default function OnboardingPage() {
 				<CardHeader>
 					<CardTitle>Welcome to HHS Hosting!</CardTitle>
 					<CardDescription>
-						Let's complete your account setup
+						Let&apos;s complete your account setup
 					</CardDescription>
 				</CardHeader>
 				<CardContent className='space-y-4'>
@@ -59,7 +59,7 @@ export default function OnboardingPage() {
 						{user?.firstName || user?.username || 'New User'}!
 					</p>
 					<p>
-						Your account has been created successfully. We're
+						Your account has been created successfully. We&apos;re
 						excited to have you join us.
 					</p>
 				</CardContent>

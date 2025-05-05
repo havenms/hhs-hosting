@@ -11,14 +11,6 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle2, Circle, Clock } from 'lucide-react';
 import Link from 'next/link';
 
-interface TimelineItem {
-	stage: string;
-	completed: boolean;
-	current?: boolean;
-	date: string | null;
-}
-
-
 
 export function ProjectTimeline({ timeline }: ProjectTimelineProps) {
 	const completionPercentage = Math.round(

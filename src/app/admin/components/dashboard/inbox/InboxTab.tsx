@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Filter, RefreshCw } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
 	Select,
@@ -10,33 +10,33 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TicketsTable } from '@/app/admin/tickets/components/TicketsTable';
 import { TicketDetailModal } from '@/app/support/components/tickets/TicketDetailModal';
+import { SupportTicket } from '@/app/admin/tickets/types';
 
-export function InboxTab({ editRequests, supportTickets }) {
+export function InboxTab({ supportTickets }: { supportTickets: SupportTicket[] }) {
 	// Ticket state management (similar to admin/tickets page)
 	const [searchTerm, setSearchTerm] = useState('');
 	const [statusFilter, setStatusFilter] = useState('all');
 	const [priorityFilter, setPriorityFilter] = useState('all');
-	const [sortField, setSortField] = useState('dateOpened');
-	const [sortDirection, setSortDirection] = useState('desc');
-	const [selectedTicket, setSelectedTicket] = useState(null);
+	const [sortField, setSortField] = useState<keyof SupportTicket>('dateOpened');
+	const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+	const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	// Handle sorting
-	const handleSort = (field) => {
-		if (sortField === field) {
+	const handleSort = (field: string): void => {
+		if (sortField === field as keyof SupportTicket) {
 			setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
 		} else {
-			setSortField(field);
+			setSortField(field as keyof SupportTicket);
 			setSortDirection('desc');
 		}
 	};
 
 	// Handle ticket selection
-	const handleViewTicket = (ticket) => {
+	const handleViewTicket = (ticket: SupportTicket): void => {
 		setSelectedTicket(ticket);
 		setIsModalOpen(true);
 	};

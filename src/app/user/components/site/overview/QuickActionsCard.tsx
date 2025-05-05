@@ -20,7 +20,6 @@ export function QuickActionsCard({
 	domain,
 	siteStatus,
 }: QuickActionsCardProps) {
-	const isPreBuild = siteStatus === 'pre-build';
 	const isBuilding = siteStatus === 'building';
 	const isDeployed = siteStatus === 'deployed';
 

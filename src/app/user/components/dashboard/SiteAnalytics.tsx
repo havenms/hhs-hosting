@@ -8,8 +8,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LineChart, BarChart, DonutChart } from '@tremor/react';
 import { AreaChart, MapPin, Activity, Users, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,37 +19,13 @@ import {
 } from '@/components/ui/select';
 import { StatsCard } from './shared/StatsCard';
 
-interface SiteAnalyticsProps {
-	visitors: any;
-}
 
-export function SiteAnalytics({ visitors }: SiteAnalyticsProps) {
+
+export function SiteAnalytics() {
 	const [timeRange, setTimeRange] = useState('7d');
 
 	// Mock data for charts
-	const pageViewData = [
-		{ date: 'Apr 04', views: 621 },
-		{ date: 'Apr 05', views: 713 },
-		{ date: 'Apr 06', views: 589 },
-		{ date: 'Apr 07', views: 627 },
-		{ date: 'Apr 08', views: 824 },
-		{ date: 'Apr 09', views: 923 },
-		{ date: 'Apr 10', views: 972 },
-	];
-
-	const trafficSourceData = [
-		{ source: 'Direct', visitors: 456 },
-		{ source: 'Search', visitors: 351 },
-		{ source: 'Social', visitors: 271 },
-		{ source: 'Referral', visitors: 191 },
-		{ source: 'Email', visitors: 91 },
-	];
-
-	const deviceData = [
-		{ name: 'Mobile', value: 58 },
-		{ name: 'Desktop', value: 34 },
-		{ name: 'Tablet', value: 8 },
-	];
+	
 
 	return (
 		<section className='mb-8 animate-fadeIn'>
@@ -63,7 +37,7 @@ export function SiteAnalytics({ visitors }: SiteAnalyticsProps) {
 							Site Analytics
 						</CardTitle>
 						<CardDescription className='text-sm md:text-base'>
-							View your website's performance metrics
+							View your website&apos;s performance metrics
 						</CardDescription>
 					</div>
 					<div className='flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-x-2 sm:space-y-0'>

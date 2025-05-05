@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth, clerkClient } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
-
+import { Prisma } from '@prisma/client';
 export async function POST(request: NextRequest) {
 	try {
 		// Get the user ID using getAuth(request)
@@ -123,9 +123,8 @@ export async function GET(request: NextRequest) {
 			user?.isAdmin === true || user?.role === 'admin' || isClerkAdmin;
 
 		console.log('Is admin user:', isAdminUser);
-
 		// Build query conditions
-		const whereConditions: any = {};
+		const whereConditions: Prisma.TicketWhereInput = {};
 
 		// Regular users only see their own tickets, admins see all
 		if (!isAdminUser) {

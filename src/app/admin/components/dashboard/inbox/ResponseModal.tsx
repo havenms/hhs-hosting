@@ -70,7 +70,7 @@ export function ResponseModal({
 			setUrlLabel('');
 			setShowUrlSection(false);
 			onOpenChange(false);
-		} catch (err) {
+		} catch {
 			setError('Failed to send response. Please try again.');
 		} finally {
 			setIsSubmitting(false);

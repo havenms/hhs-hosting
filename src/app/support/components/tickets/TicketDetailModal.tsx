@@ -1,7 +1,7 @@
 // src/app/support/components/tickets/TicketDetailModal.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
 	Dialog,
 	DialogContent,
@@ -34,8 +34,29 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 
+// Define proper types instead of 'any'
+interface TicketResponse {
+	id?: string;
+	message: string;
+	createdAt: string;
+	isAdminResponse?: boolean;
+	url?: string;
+	urlLabel?: string;
+}
+
+interface Ticket {
+	id: string;
+	subject: string;
+	description?: string;
+	status: string;
+	priority: string;
+	createdAt: string;
+	category?: string;
+	userEmail?: string;
+}
+
 interface TicketDetailModalProps {
-	ticket: any;
+	ticket: Ticket | null;
 	isOpen: boolean;
 	onClose: () => void;
 	onRefresh?: () => void;
@@ -48,7 +69,7 @@ export function TicketDetailModal({
 	onRefresh,
 }: TicketDetailModalProps) {
 	const [loading, setLoading] = useState(false);
-	const [responses, setResponses] = useState<any[]>([]);
+	const [responses, setResponses] = useState<TicketResponse[]>([]);
 	const [newReply, setNewReply] = useState('');
 	const [submitting, setSubmitting] = useState(false);
 
@@ -66,13 +87,8 @@ export function TicketDetailModal({
 		}
 	}, [ticket]);
 
-	useEffect(() => {
-		if (isOpen && ticket) {
-			fetchTicketResponses();
-		}
-	}, [isOpen, ticket]);
-
-	const fetchTicketResponses = async () => {
+	// Use useCallback to memoize the function
+	const fetchTicketResponses = useCallback(async () => {
 		if (!ticket) return;
 
 		setLoading(true);
@@ -96,7 +112,13 @@ export function TicketDetailModal({
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [ticket]); // Add ticket as dependency
+
+	useEffect(() => {
+		if (isOpen && ticket) {
+			fetchTicketResponses();
+		}
+	}, [isOpen, ticket, fetchTicketResponses]); // Include fetchTicketResponses in dependency array
 
 	const handleSubmitReply = async () => {
 		if (!newReply.trim()) return;
@@ -104,7 +126,7 @@ export function TicketDetailModal({
 		setSubmitting(true);
 		try {
 			const response = await fetch(
-				`/api/tickets/${ticket.id}/responses`,
+				`/api/tickets/${ticket?.id}/responses`,
 				{
 					method: 'POST',
 					headers: {
@@ -130,7 +152,7 @@ export function TicketDetailModal({
 	};
 
 	const handleUpdateTicket = async () => {
-		if (!isAdmin) return;
+		if (!isAdmin || !ticket) return;
 
 		setIsUpdating(true);
 		setUpdateError(null);
@@ -156,7 +178,10 @@ export function TicketDetailModal({
 				);
 			}
 
-			const updatedTicket = await response.json();
+			// Process the response data (or remove if not needed)
+			await response.json(); // Removed unused variable
+
+			// Update UI after successful update
 			fetchTicketResponses();
 			if (onRefresh) onRefresh();
 		} catch (err) {

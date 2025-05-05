@@ -1,20 +1,14 @@
 // src/app/api/users/[id]/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-
-interface Params {
-	params: {
-		id: string;
-	};
-}
 
 // Get a specific user
 export async function GET(
-	request: NextRequest,
-	context: { params: { id: string } }
+	req: Request,
+	{ params }: { params: { id: string } }
 ) {
 	try {
-		const { id } = context.params;
+		const { id } = params;
 
 		const user = await prisma.user.findUnique({
 			where: {
@@ -46,12 +40,12 @@ export async function GET(
 
 // Update a user
 export async function PUT(
-	request: NextRequest,
-	context: { params: { id: string } }
+	req: Request,
+	{ params }: { params: { id: string } }
 ) {
 	try {
-		const { id } = context.params;
-		const body = await request.json();
+		const { id } = params;
+		const body = await req.json();
 
 		const updatedUser = await prisma.user.update({
 			where: {
@@ -77,11 +71,11 @@ export async function PUT(
 
 // Delete a user
 export async function DELETE(
-	request: NextRequest,
-	context: { params: { id: string } }
+	req: Request,
+	{ params }: { params: { id: string } }
 ) {
 	try {
-		const { id } = context.params;
+		const { id } = params;
 
 		await prisma.user.delete({
 			where: {

@@ -2,7 +2,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/components/auth-provider';
 import { ProjectStageSwitcher } from './ProjectStageSwitcher';
 import { PreBuildBanner } from './status-banners/PreBuildBanner';
 import { BuildingBanner } from './status-banners/BuildingBanner';
@@ -50,7 +49,6 @@ const siteData = {
 };
 
 export function Dashboard() {
-	const { user, isAdmin } = useAuth();
 	// Simulation state for project stage
 	const [simulatedStage, setSimulatedStage] = useState('building');
 

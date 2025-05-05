@@ -21,7 +21,7 @@ interface AuthContextType {
 	user: User | null;
 	isLoading: boolean;
 	isAdmin: boolean;
-	login: (emailOrUser: string | User, password?: string) => Promise<any>;
+	login: (emailOrUser: string | User, password?: string) => Promise<User>;
 	logout: () => void;
 }
 

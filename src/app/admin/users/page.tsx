@@ -196,7 +196,7 @@ export default function UsersPage() {
 					</div>
 					<div>
 						<strong>Admin Role:</strong>{' '}
-						{user?.publicMetadata?.role || 'None'}
+						{String(user?.publicMetadata?.role || 'None')}
 					</div>
 					<div>
 						<strong>Admin Flag:</strong>{' '}

@@ -62,7 +62,7 @@ export function PricingCards({ billingInterval }: PricingCardsProps) {
 						<div className='space-y-4'>
 							<div>
 								<h3 className='text-sm font-medium mb-2'>
-									What's included:
+									What&apos;s included:
 								</h3>
 								<ul className='space-y-2'>
 									{plan.features.map((feature) => (

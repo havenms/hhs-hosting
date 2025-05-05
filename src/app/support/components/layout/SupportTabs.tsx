@@ -7,7 +7,7 @@ interface SupportTabsProps {
 	isLoggedIn: boolean;
 }
 
-export function SupportTabs({ activeTab, isLoggedIn }: SupportTabsProps) {
+export function SupportTabs({ activeTab }: SupportTabsProps) {
 	return (
 		<div className='border-b'>
 			<TabsList className='w-full justify-start'>

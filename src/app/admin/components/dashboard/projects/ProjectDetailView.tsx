@@ -4,39 +4,29 @@ import { Progress } from '@/components/ui/progress';
 import { SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Eye,
 	Edit,
 	MessageCircle,
 	ExternalLink,
-	AlertCircle,
-	Clock,
-	CheckCircle2,
-	Circle,
-	Bell,
-	CreditCard,
-	UserCog,
 } from 'lucide-react';
 import { StageIndicator } from '../../shared/StatusBadges';
-import { formatDate, getDaysRemaining } from '../shared/utils';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import Link from 'next/link';
+
+interface Project {
+	siteName: string;
+	clientName: string;
+	stage: string;
+	progress: number;
+	pendingActions?: Array<unknown>;
+}
 
 interface ProjectDetailViewProps {
-	project: any;
+	project: Project;
 	onClose?: () => void;
 }
 
 export function ProjectDetailView({
 	project,
-	onClose,
 }: ProjectDetailViewProps) {
 	const [activeTab, setActiveTab] = useState('overview');
 

@@ -10,7 +10,6 @@ import {
 	CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import {
 	Globe,
 	FileEdit,
@@ -145,10 +144,10 @@ export function SiteStatusCard({
 				{isPreBuild && (
 					<div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
 						<h4 className='font-medium text-blue-800 mb-2'>
-							Let's Build Your Website
+							Let&apos;s Build Your Website
 						</h4>
 						<p className='text-sm text-blue-700 mb-4'>
-							We're ready to start creating your professional
+							We&apos;re ready to start creating your professional
 							website. The first step is to complete our site
 							requirements form so we understand your goals and
 							needs.

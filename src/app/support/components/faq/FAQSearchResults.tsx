@@ -81,7 +81,7 @@ export function FAQSearchResults({
 			<CardFooter className='flex flex-col items-start border-t pt-6'>
 				<h3 className='text-lg font-medium mb-2'>Still need help?</h3>
 				<p className='text-muted-foreground mb-4'>
-					If you can't find an answer to your question, you can always
+					If you can&apos;t find an answer to your question, you can always
 					contact our support team.
 				</p>
 				<Button

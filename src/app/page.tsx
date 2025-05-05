@@ -6,7 +6,7 @@ import { LoadingState } from '@/components/loading-state';
 import { DiscoMode } from '@/components/disco-mode';
 
 export default function Home() {
-	const { user, isLoading } = useAuth();
+	const { isLoading } = useAuth();
 
 	// Using isLoading from auth for disco mode
 	// This will automatically handle the fade-out transition

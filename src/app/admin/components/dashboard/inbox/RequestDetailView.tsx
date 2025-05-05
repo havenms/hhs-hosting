@@ -18,14 +18,27 @@ import {
 	TicketPriorityBadge,
 } from '../../shared/StatusBadges';
 
+interface Request {
+  status: string;
+  siteName: string;
+  requestDate: string;
+  description: string;
+  details: string;
+  priority: string;
+  deadline?: string;
+  attachments?: Array<{
+	name: string;
+	size: string;
+  }>;
+}
+
 interface EditRequestDetailViewProps {
-	request: any;
+	request: Request;
 	onBack?: () => void;
 }
 
 export function EditRequestDetailView({
 	request,
-	onBack,
 }: EditRequestDetailViewProps) {
 	const [status, setStatus] = useState(request.status);
 

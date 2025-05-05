@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import {
 	Card,
 	CardContent,
@@ -13,7 +12,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
 	CheckCircle2,
-	FileEdit,
 	ExternalLink,
 	RefreshCw,
 	Copy,
@@ -49,6 +47,19 @@ export function DeployedBanner({ domain }: DeployedBannerProps) {
 		const interval = setInterval(() => {
 			setVisitors((prev) => prev + Math.floor(Math.random() * 2));
 		}, 5000);
+
+		return () => clearInterval(interval);
+	}, []);
+
+	// Simulate small uptime fluctuations
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setUptime(() => {
+				// Small random fluctuation between 99.95 and 100
+				const newValue = 99.95 + Math.random() * 0.05;
+				return parseFloat(newValue.toFixed(2));
+			});
+		}, 15000);
 
 		return () => clearInterval(interval);
 	}, []);

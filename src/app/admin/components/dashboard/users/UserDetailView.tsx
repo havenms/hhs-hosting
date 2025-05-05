@@ -34,7 +34,6 @@ import {
 	DropdownMenuTrigger,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
@@ -43,10 +42,9 @@ import {
 	Edit,
 	PencilLine,
 	CreditCard,
-	MessageCircle,
-	User as UserIcon,
 	CheckCircle2,
 	MoreHorizontal,
+	PlusCircle,
 } from 'lucide-react';
 import { formatDate } from '../../shared/utils';
 import {
@@ -55,12 +53,59 @@ import {
 	TicketPriorityBadge,
 } from '../../shared/StatusBadges';
 
+interface User {
+	name: string;
+	email: string;
+	company?: string;
+	status: string;
+	phone?: string;
+	plan?: string;
+	nextBillingDate?: string | Date;
+	signupDate: string | Date;
+	paymentMethod?: string;
+	billingHistory?: Array<{
+		id: string | number;
+		date: string | Date;
+		type: string;
+		amount: number;
+		status: string;
+	}>;
+}
+
+interface Site {
+	id: string | number;
+	siteName: string;
+	domain: string;
+	stage: string;
+	progress: number;
+	estimatedCompletion: string | Date;
+}
+
+interface Ticket {
+	id: string | number;
+	issue: string;
+	status: string;
+	priority: string;
+	dateOpened: string | Date;
+}
+
+interface EditRequest {
+	id: string | number;
+	// Add other properties as needed
+}
+
+interface BillingPlan {
+	name: string;
+	price: number;
+	features: string[];
+}
+
 interface UserDetailViewProps {
-	user: any;
-	sites: any[];
-	tickets: any[];
-	editRequests: any[];
-	billingPlans: any[];
+	user: User;
+	sites: Site[];
+	tickets: Ticket[];
+	editRequests: EditRequest[];
+	billingPlans: BillingPlan[];
 	onClose?: () => void;
 }
 
@@ -70,7 +115,6 @@ export function UserDetailView({
 	tickets,
 	editRequests,
 	billingPlans,
-	onClose,
 }: UserDetailViewProps) {
 	const [activeTab, setActiveTab] = useState('overview');
 
@@ -657,7 +701,7 @@ export function UserDetailView({
 								No Billing Plan
 							</h3>
 							<p className='text-muted-foreground mb-4'>
-								This user doesn't have an active billing plan.
+								This user doesn&apos;t have an active billing plan.
 							</p>
 							<Button>
 								<PlusCircle className='h-4 w-4 mr-2' />

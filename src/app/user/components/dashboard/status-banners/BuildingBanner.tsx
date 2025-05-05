@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, CreditCard, FileText, LifeBuoy } from 'lucide-react';
+import { CreditCard, LifeBuoy } from 'lucide-react';
 
 interface BuildingBannerProps {
 	domain: string;
@@ -29,7 +29,7 @@ export function BuildingBanner({ domain }: BuildingBannerProps) {
 					Your Site is Being Built
 				</CardTitle>
 				<CardDescription>
-					Your site is currently being built. Here's your temporary
+					Your site is currently being built. Here&apos;s your temporary
 					URL:
 				</CardDescription>
 				<p className='mt-2 font-mono text-sm bg-background px-3 py-2 rounded border'>

@@ -3,16 +3,25 @@ import { Button } from '@/components/ui/button';
 import { formatDate } from '../../util';
 import { TicketDetailModal } from './TicketDetailModal';
 
+interface Ticket {
+	id: string | number;
+	subject: string;
+	messages: number;
+	status: string;
+	priority: string;
+	createdAt: string | Date;
+}
+
 interface TicketTableProps {
-	tickets: any[];
+	tickets: Ticket[];
 	onRefresh: () => void;
 }
 
 export function TicketTable({ tickets, onRefresh }: TicketTableProps) {
-	const [selectedTicket, setSelectedTicket] = useState<any>(null);
+	const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
-	const handleViewDetails = (ticket: any) => {
+	const handleViewDetails = (ticket: Ticket) => {
 		setSelectedTicket(ticket);
 		setIsModalOpen(true);
 	};

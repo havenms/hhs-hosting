@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { SignIn, SignUp, useSignIn } from '@clerk/nextjs';
+import { SignIn, SignUp } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation';
 export function LoginModal() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [activeTab, setActiveTab] = useState('sign-in');
-	const { signIn } = useSignIn();
 	const router = useRouter();
 
 	// Handle successful sign-in with role-based redirection

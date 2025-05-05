@@ -18,7 +18,6 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import {
 	DropdownMenu,
 	DropdownMenuTrigger,
@@ -44,8 +43,18 @@ import {
 } from 'lucide-react';
 import { formatDate } from '../shared/utils';
 
+interface User {
+  id: string | number;
+  name: string;
+  email: string;
+  company?: string;
+  plan?: 'Managed Basic' | 'Managed Pro' | 'Managed Premium';
+  nextBillingDate?: Date | string;
+  paymentMethod?: string;
+}
+
 interface BillingTabProps {
-	users: any[];
+	users: User[];
 }
 
 export function BillingTab({ users }: BillingTabProps) {
@@ -67,12 +76,11 @@ export function BillingTab({ users }: BillingTabProps) {
 	// Calculate statistics
 	const totalRevenue = filteredUsers.reduce((sum, user) => {
 		// Use a default price if plan doesn't exist or price is not available
-		const planPrice =
-			{
+		const planPrice = user.plan ? {
 				'Managed Basic': 39.99,
 				'Managed Pro': 79.99,
 				'Managed Premium': 149.99,
-			}[user.plan] || 0;
+			}[user.plan] : 0;
 
 		return sum + planPrice;
 	}, 0);
@@ -276,7 +284,7 @@ export function BillingTab({ users }: BillingTabProps) {
 									'Managed Pro': 79.99,
 									'Managed Premium': 149.99,
 								};
-								const price = planPrices[user.plan] || 0;
+								const price = planPrices[user.plan as keyof typeof planPrices] || 0;
 
 								return (
 									<TableRow key={user.id}>

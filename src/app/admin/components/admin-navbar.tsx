@@ -8,10 +8,6 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import {
-    LayoutDashboard,
-    Server,
-    CreditCard,
-    LifeBuoy,
     LogOut,
     User,
     MenuIcon,
@@ -27,8 +23,14 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-const navigation = [
-   
+interface NavigationItem {
+    name: string;
+    href: string;
+    icon: React.ElementType;
+}
+
+const navigation: NavigationItem[] = [
+     
 ];
 
 export function AdminNavbar() {

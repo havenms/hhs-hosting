@@ -1,5 +1,5 @@
 // src/components/admin/dashboard/inbox/TicketDetailView.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,6 @@ import {
 	User,
 	Clock,
 	AlertCircle,
-	Info,
 	ArrowLeft,
 	RefreshCw,
 	ArrowRightLeft,
@@ -29,241 +28,85 @@ import {
 import { formatDateWithTime } from '../../shared/utils';
 import { ResponseModal } from './ResponseModal';
 
-interface SupportTicketDetailViewProps {
-	ticket: any;
-	onBack?: () => void;
-	onUpdate?: (ticketId: string, data: any) => Promise<void>;
-}
-
-export function SupportTicketDetailView({
-	ticket,
-	onBack,
-	onUpdate,
-}: SupportTicketDetailViewProps) {
-	// Ensure ticket.responses is an array if undefined
-	const ticketWithResponses = {
-		...ticket,
-		responses: ticket.responses || [],
-	};
-
-	const [status, setStatus] = useState(ticket.status);
-	const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
-	const [isUpdating, setIsUpdating] = useState(false);
-	const [statusUpdateError, setStatusUpdateError] = useState<string | null>(
-		null
-	);
-
-	// Handle status update
-	const handleStatusUpdate = async () => {
-		if (status === ticket.status) return;
-
-		setIsUpdating(true);
-		setStatusUpdateError(null);
-
-		try {
-			const response = await fetch(`/api/tickets/${ticket.id}`, {
-				method: 'PATCH',
-				headers: {
-					'Content-Type': 'application/json',
-					credentials: 'include',
-				},
-				body: JSON.stringify({
-					status,
-					lastUpdateNote: `Status changed to ${status} by admin`,
-				}),
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({}));
-				throw new Error(
-					errorData.error || `Server returned ${response.status}`
-				);
-			}
-
-			const updatedTicket = await response.json();
-
-			// Call parent update handler if provided
-			if (onUpdate) {
-				await onUpdate(ticket.id, updatedTicket);
-			}
-		} catch (err) {
-			const errorMessage =
-				err instanceof Error ? err.message : 'Failed to update status';
-			setStatusUpdateError(errorMessage);
-		} finally {
-			setIsUpdating(false);
-		}
-	};
-
-	// Handle response submission
-	const handleResponseSubmit = async (data: {
+interface Ticket {
+	id: string;
+	status: string;
+	responses?: Array<{
+		authorName?: string;
+		author?: string;
+		createdAt?: string;
+		date?: string;
 		message: string;
+		isAdminResponse?: boolean;
+		isAgent?: boolean;
 		url?: string;
 		urlLabel?: string;
-	}) => {
-		const response = await fetch(`/api/tickets/${ticket.id}/responses`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			credentials: 'include',
-			body: JSON.stringify(data),
-		});
+	}>;
+	subject?: string;
+	dateOpened: string;
+	siteName?: string;
+	clientName?: string;
+	userEmail: string;
+	description?: string;
+	steps?: string;
+	priority: string;
+	category?: string;
+	browser?: string;
+}
 
-		if (!response.ok) {
-			const errorData = await response.json();
-			throw new Error(errorData.error || 'Failed to send response');
-		}
-
-		// Optionally call parent update handler
-		if (onUpdate) {
-			await onUpdate(ticket.id, await response.json());
-		}
-	};
-
-	return (
-		<div className='flex flex-col h-full max-h-[85vh] overflow-auto p-2'>
-			{/* Back button for mobile */}
-			{onBack && (
-				<div className='lg:hidden mb-2'>
-					<Button
-						variant='ghost'
-						size='sm'
-						onClick={onBack}
-						className='gap-1'
-					>
-						<ArrowLeft className='h-4 w-4' />
-						<span>Back</span>
-					</Button>
-				</div>
-			)}
-
-			{/* Ticket Header */}
-			<TicketHeader
-				ticket={ticket}
-				status={status}
-			/>
-
-			{/* Content Area */}
-			<div className='space-y-6 overflow-auto flex-1 pr-1'>
-				{/* Ticket Details */}
-				<TicketDetails ticket={ticket} />
-
-				{/* Response History */}
-				{console.log('Ticket responses:', ticket.responses)}
-				{ticket.responses ? (
-					ticket.responses.length > 0 ? (
-						<ResponseHistory
-							responses={ticketWithResponses.responses}
-							ticket={ticketWithResponses}
-						/>
-					) : (
-						<section>
-							<h3 className='text-sm font-medium mb-2 flex items-center'>
-								<MessageCircle className='h-4 w-4 mr-2 text-primary' />
-								Response History
-							</h3>
-							<div className='text-center py-4 text-muted-foreground text-sm bg-muted/50 rounded-md'>
-								No responses yet (responses array exists but is
-								empty).
-							</div>
-						</section>
-					)
-				) : (
-					<section>
-						<h3 className='text-sm font-medium mb-2 flex items-center'>
-							<MessageCircle className='h-4 w-4 mr-2 text-primary' />
-							Response History
-						</h3>
-						<div className='text-center py-4 text-muted-foreground text-sm bg-muted/50 rounded-md'>
-							No responses data available (responses property is
-							missing).
-						</div>
-					</section>
-				)}
-
-				{/* Actions for open tickets */}
-				{ticket.status !== 'closed' && (
-					<TicketActions
-						status={status}
-						setStatus={setStatus}
-						onStatusUpdate={handleStatusUpdate}
-						isUpdating={isUpdating}
-						error={statusUpdateError}
-						onComposeClick={() => setIsResponseModalOpen(true)}
-					/>
-				)}
-			</div>
-
-			{/* Response Modal */}
-			<ResponseModal
-				isOpen={isResponseModalOpen}
-				onOpenChange={setIsResponseModalOpen}
-				ticketId={ticket.id}
-				onResponseSubmit={handleResponseSubmit}
-			/>
-		</div>
-	);
+interface SupportTicketDetailViewProps {
+	ticket: Ticket;
+	onBack?: () => void;
+	onUpdate?: (ticketId: string, data: Partial<Ticket>) => Promise<void>;
 }
 
 // Subcomponent: Ticket Header
-function TicketHeader({ ticket, status }) {
+function TicketHeader({ ticket, status }: { ticket: Ticket; status: string }) {
 	return (
 		<SheetHeader className='border-b pb-4 mb-4'>
-			<div className='flex flex-col md:flex-row md:items-center md:justify-between gap-2'>
-				<SheetTitle className='text-xl font-bold'>
+			<div className='flex items-center justify-between'>
+				<SheetTitle className='text-xl'>
 					{ticket.subject || 'Support Ticket'}
 				</SheetTitle>
-				<TicketStatusBadge
-					status={status}
-					className='self-start md:self-auto'
-				/>
+				<TicketStatusBadge status={status} />
 			</div>
-
-			<div className='mt-2 space-y-1.5'>
-				<div className='flex flex-wrap gap-x-4 gap-y-1 text-sm'>
-					<div className='flex items-center text-muted-foreground'>
-						<Info className='h-3.5 w-3.5 mr-1.5' />
-						<span>
-							ID: <span className='font-mono'>{ticket.id}</span>
-						</span>
-					</div>
-
-					<div className='flex items-center text-muted-foreground'>
-						<Clock className='h-3.5 w-3.5 mr-1.5' />
-						<span>
-							Opened: {formatDateWithTime(ticket.dateOpened)}
-						</span>
-					</div>
-				</div>
-
-				<div className='flex flex-wrap gap-x-4 gap-y-1 text-sm'>
+			<div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-2'>
+				<div className='text-sm text-muted-foreground'>
 					{ticket.siteName && (
-						<div className='flex items-center gap-1'>
-							<span className='text-muted-foreground'>Site:</span>
-							<span className='font-medium'>
+						<>
+							Site:{' '}
+							<span className='font-medium text-foreground'>
 								{ticket.siteName}
 							</span>
-						</div>
+						</>
 					)}
-
-					{ticket.clientName && (
-						<div className='flex items-center gap-1'>
-							<span className='text-muted-foreground'>From:</span>
-							<span className='font-medium'>
+					{!ticket.siteName && ticket.clientName && (
+						<>
+							Client:{' '}
+							<span className='font-medium text-foreground'>
 								{ticket.clientName}
 							</span>
-							<span className='text-xs text-muted-foreground'>
-								({ticket.userEmail})
-							</span>
-						</div>
+						</>
 					)}
 				</div>
+				<div className='flex items-center text-sm'>
+					<Clock className='h-3.5 w-3.5 mr-1 text-muted-foreground' />
+					{formatDateWithTime(ticket.dateOpened)}
+				</div>
 			</div>
+			{ticket.userEmail && (
+				<div className='text-sm text-muted-foreground mt-1'>
+					<span className='text-xs bg-muted px-2 py-0.5 rounded'>
+						{ticket.userEmail}
+					</span>
+				</div>
+			)}
 		</SheetHeader>
 	);
 }
 
 // Subcomponent: Ticket Details
-function TicketDetails({ ticket }) {
+function TicketDetails({ ticket }: { ticket: Ticket }) {
 	return (
 		<section>
 			<h3 className='text-sm font-medium mb-2 flex items-center'>
@@ -334,17 +177,18 @@ function TicketDetails({ ticket }) {
 }
 
 // Subcomponent: Response History
-function ResponseHistory({ responses, ticket }) {
+function ResponseHistory({
+	responses,
+	ticket,
+}: {
+	responses: Ticket['responses'];
+	ticket: Ticket;
+}) {
 	const [loading, setLoading] = useState(false);
 	const [localResponses, setLocalResponses] = useState(responses || []);
 
-	useEffect(() => {
-		if (ticket?.id && (!responses || responses.length === 0)) {
-			fetchResponses();
-		}
-	}, [ticket?.id, responses]);
-
-	const fetchResponses = async () => {
+	// Add useCallback to memoize fetchResponses
+	const fetchResponses = useCallback(async () => {
 		if (!ticket?.id) return;
 
 		setLoading(true);
@@ -359,7 +203,7 @@ function ResponseHistory({ responses, ticket }) {
 
 			if (response.ok) {
 				const data = await response.json();
-				console.log('Fetched responses:', data); // Add logging to debug
+				console.log('Fetched responses:', data);
 				setLocalResponses(Array.isArray(data) ? data : []);
 			} else {
 				console.error(
@@ -372,7 +216,13 @@ function ResponseHistory({ responses, ticket }) {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [ticket?.id]); // Add ticket.id as a dependency
+
+	useEffect(() => {
+		if (ticket?.id && (!responses || responses.length === 0)) {
+			fetchResponses();
+		}
+	}, [ticket?.id, responses, fetchResponses]); // Add fetchResponses to the dependency array
 
 	return (
 		<section>
@@ -463,6 +313,13 @@ function TicketActions({
 	isUpdating,
 	error,
 	onComposeClick,
+}: {
+	status: string;
+	setStatus: (status: string) => void;
+	onStatusUpdate: () => Promise<void>;
+	isUpdating: boolean;
+	error: string | null;
+	onComposeClick: () => void;
 }) {
 	return (
 		<section>
@@ -521,5 +378,175 @@ function TicketActions({
 				</Button>
 			</div>
 		</section>
+	);
+}
+
+export function SupportTicketDetailView({
+	ticket,
+	onBack,
+	onUpdate,
+}: SupportTicketDetailViewProps) {
+	// Ensure ticket.responses is an array if undefined
+	const ticketWithResponses = {
+		...ticket,
+		responses: ticket.responses || [],
+	};
+
+	const [status, setStatus] = useState(ticket.status);
+	const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
+	const [isUpdating, setIsUpdating] = useState(false);
+	const [statusUpdateError, setStatusUpdateError] = useState<string | null>(
+		null
+	);
+
+	// Handle status update
+	const handleStatusUpdate = async () => {
+		if (status === ticket.status) return;
+
+		setIsUpdating(true);
+		setStatusUpdateError(null);
+
+		try {
+			const response = await fetch(`/api/tickets/${ticket.id}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+				body: JSON.stringify({
+					status,
+					lastUpdateNote: `Status changed to ${status} by admin`,
+				}),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({}));
+				throw new Error(
+					errorData.error || `Server returned ${response.status}`
+				);
+			}
+
+			const updatedTicket = await response.json();
+
+			// Call parent update handler if provided
+			if (onUpdate) {
+				await onUpdate(ticket.id, updatedTicket);
+			}
+		} catch (err) {
+			const errorMessage =
+				err instanceof Error ? err.message : 'Failed to update status';
+			setStatusUpdateError(errorMessage);
+		} finally {
+			setIsUpdating(false);
+		}
+	};
+
+	// Handle response submission
+	const handleResponseSubmit = async (data: {
+		message: string;
+		url?: string;
+		urlLabel?: string;
+	}) => {
+		const response = await fetch(`/api/tickets/${ticket.id}/responses`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			credentials: 'include',
+			body: JSON.stringify(data),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json();
+			throw new Error(errorData.error || 'Failed to send response');
+		}
+
+		// Optionally call parent update handler
+		if (onUpdate) {
+			await onUpdate(ticket.id, await response.json());
+		}
+
+		// Close the modal and update UI
+		setIsResponseModalOpen(false);
+	};
+
+	return (
+		<div className='flex flex-col h-full max-h-[85vh] overflow-auto p-2'>
+			{/* Back button for mobile */}
+			{onBack && (
+				<div className='lg:hidden mb-2'>
+					<Button
+						variant='ghost'
+						size='sm'
+						onClick={onBack}
+						className='gap-1'
+					>
+						<ArrowLeft className='h-4 w-4' />
+						<span>Back</span>
+					</Button>
+				</div>
+			)}
+
+			{/* Ticket Header */}
+			<TicketHeader
+				ticket={ticket}
+				status={status}
+			/>
+
+			{/* Content Area */}
+			<div className='space-y-6 overflow-auto flex-1 pr-1'>
+				{/* Ticket Details */}
+				<TicketDetails ticket={ticket} />
+
+				{/* Response History */}
+				{ticket.responses ? (
+					ticket.responses.length > 0 ? (
+						<ResponseHistory
+							responses={ticketWithResponses.responses}
+							ticket={ticketWithResponses}
+						/>
+					) : (
+						<section>
+							<h3 className='text-sm font-medium mb-2 flex items-center'>
+								<MessageCircle className='h-4 w-4 mr-2 text-primary' />
+								Response History
+							</h3>
+							<div className='text-center py-4 text-muted-foreground text-sm bg-muted/50 rounded-md'>
+								No responses yet (responses array exists but is
+								empty).
+							</div>
+						</section>
+					)
+				) : (
+					<section>
+						<h3 className='text-sm font-medium mb-2 flex items-center'>
+							<MessageCircle className='h-4 w-4 mr-2 text-primary' />
+							Response History
+						</h3>
+						<div className='text-center py-4 text-muted-foreground text-sm bg-muted/50 rounded-md'>
+							No responses data available (responses property is
+							missing).
+						</div>
+					</section>
+				)}
+
+				{/* Actions for open tickets */}
+				{ticket.status !== 'closed' && (
+					<TicketActions
+						status={status}
+						setStatus={setStatus}
+						onStatusUpdate={handleStatusUpdate}
+						isUpdating={isUpdating}
+						error={statusUpdateError}
+						onComposeClick={() => setIsResponseModalOpen(true)}
+					/>
+				)}
+			</div>
+
+			{/* Response Modal */}
+			<ResponseModal
+				isOpen={isResponseModalOpen}
+				onClose={() => setIsResponseModalOpen(false)}
+				onSubmit={handleResponseSubmit}
+			/>
+		</div>
 	);
 }

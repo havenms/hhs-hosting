@@ -66,7 +66,8 @@ export async function authFetch(url: string, options: RequestInit = {}) {
 				errorData.error ||
 					`API request failed with status ${response.status}`
 			);
-		} catch (jsonError) {
+		} catch {
+			// Intentionally catch parsing errors but don't use the error object
 			throw new Error(
 				`API request failed with status ${response.status}`
 			);

@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
 
 // Get responses for a ticket
 export async function GET(
-	request: NextRequest,
+	req: Request,
 	{ params }: { params: { id: string } }
 ) {
 	try {
-		const { userId } = getAuth(request);
-		const { id } = params; // Extract ID from params
+		const { userId } = getAuth(req);
+		const { id } = params;
 
 		if (!userId) {
 			return NextResponse.json(
@@ -20,7 +20,6 @@ export async function GET(
 
 		console.log('Fetching responses for ticket:', id);
 
-		// Check if user is admin
 		const user = await prisma.user.findUnique({
 			where: { id: userId },
 			select: { isAdmin: true, role: true },
@@ -28,12 +27,8 @@ export async function GET(
 
 		const isAdmin = user?.isAdmin === true || user?.role === 'admin';
 
-		// Query condition based on user role
-		const whereCondition = isAdmin
-			? { id } // Admin can see any ticket
-			: { id, userId }; // Regular users can only see their own tickets
+		const whereCondition = isAdmin ? { id } : { id, userId };
 
-		// First verify the ticket exists and user has access
 		const ticket = await prisma.ticket.findUnique({
 			where: whereCondition,
 		});
@@ -45,7 +40,6 @@ export async function GET(
 			);
 		}
 
-		// Get responses for this ticket
 		const responses = await prisma.ticketResponse.findMany({
 			where: { ticketId: id },
 			orderBy: { createdAt: 'asc' },
@@ -57,7 +51,8 @@ export async function GET(
 		return NextResponse.json(
 			{
 				error: 'Failed to fetch responses',
-				details: error.message,
+				details:
+					error instanceof Error ? error.message : 'Unknown error',
 			},
 			{ status: 500 }
 		);
@@ -66,12 +61,12 @@ export async function GET(
 
 // Add a response to a ticket
 export async function POST(
-	request: NextRequest,
+	req: Request,
 	{ params }: { params: { id: string } }
 ) {
 	try {
-		const { userId } = getAuth(request);
-		const { id } = params; // Extract ID from params
+		const { userId } = getAuth(req);
+		const { id } = params;
 
 		if (!userId) {
 			return NextResponse.json(
@@ -82,8 +77,7 @@ export async function POST(
 
 		console.log('Adding response to ticket:', id);
 
-		// Get the request data
-		const { message, url, urlLabel } = await request.json();
+		const { message, url, urlLabel } = await req.json();
 
 		if (!message || !message.trim()) {
 			return NextResponse.json(
@@ -92,7 +86,6 @@ export async function POST(
 			);
 		}
 
-		// Get user info (for admin check)
 		const user = await prisma.user.findUnique({
 			where: { id: userId },
 			select: { isAdmin: true, role: true, name: true, email: true },
@@ -101,7 +94,6 @@ export async function POST(
 		const isAdmin = user?.isAdmin === true || user?.role === 'admin';
 
 		if (!isAdmin) {
-			// For non-admin users, check if the ticket belongs to them
 			const ticket = await prisma.ticket.findUnique({
 				where: {
 					id,
@@ -117,7 +109,6 @@ export async function POST(
 			}
 		}
 
-		// Create the response
 		const response = await prisma.ticketResponse.create({
 			data: {
 				message,
@@ -132,11 +123,10 @@ export async function POST(
 			},
 		});
 
-		// Update ticket status and timestamp
 		await prisma.ticket.update({
 			where: { id },
 			data: {
-				status: isAdmin ? 'in-progress' : 'open', // If admin replies, set to in-progress
+				status: isAdmin ? 'in-progress' : 'open',
 				updatedAt: new Date(),
 				lastUpdateNote: isAdmin
 					? `Response added by support agent`
@@ -153,7 +143,8 @@ export async function POST(
 		return NextResponse.json(
 			{
 				error: 'Failed to add response',
-				details: error.message,
+				details:
+					error instanceof Error ? error.message : 'Unknown error',
 			},
 			{ status: 500 }
 		);

@@ -11,9 +11,20 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 
+interface AdminSetupResponse {
+	success: boolean;
+	user: {
+		id: string;
+		email?: string;
+		name?: string;
+		isAdmin: boolean;
+	};
+	message?: string;
+}
+
 export default function AdminSetupPage() {
 	const [loading, setLoading] = useState(false);
-	const [result, setResult] = useState<any>(null);
+	const [result, setResult] = useState<AdminSetupResponse | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
 	const setupAdmin = async () => {

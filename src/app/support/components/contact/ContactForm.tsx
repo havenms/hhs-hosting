@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/card';
 import { LifeBuoy, AlertCircle } from 'lucide-react';
 import { SupportTicketForm } from './SupportTicketForm';
-import { QuickSupportLinks } from './QuickSupportLinks';
 import { useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 

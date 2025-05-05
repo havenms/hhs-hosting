@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { MenuIcon, XIcon } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { LoginModal } from '@/components/login-modal';
 

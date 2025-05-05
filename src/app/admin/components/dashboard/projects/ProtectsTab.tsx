@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
 	Select,
@@ -25,7 +25,7 @@ import { Progress } from '@/components/ui/progress';
 import { ChevronRight } from 'lucide-react';
 import { ProjectDetailView } from './ProjectDetailView';
 import { StageIndicator } from '../../shared/StatusBadges';
-import { formatDate, getDaysRemaining } from '../../shared/utils';
+import { formatDate } from '../../shared/utils';
 
 export function ProjectsTab({ projects = [] }) {
 	// Add default empty array to prevent undefined
@@ -188,7 +188,7 @@ export function ProjectsTab({ projects = [] }) {
 											</SheetTrigger>
 											<SheetContent className='w-full sm:max-w-xl overflow-auto'>
 												<ProjectDetailView
-													project={project}
+													project={selectedProject}
 												/>
 											</SheetContent>
 										</Sheet>

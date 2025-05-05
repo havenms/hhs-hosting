@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Calendar, ChevronRight } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import {
 	Card,
 	CardContent,
@@ -12,8 +12,16 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
+interface Project {
+	id: string | number;
+	siteName: string;
+	clientName: string;
+	stage: string;
+	estimatedCompletion: string;
+}
+
 interface ProjectsOverviewProps {
-	projects: any[];
+	projects: Project[];
 }
 
 export function ProjectsOverview({ projects }: ProjectsOverviewProps) {

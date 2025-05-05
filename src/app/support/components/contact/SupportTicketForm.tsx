@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { Loader2, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth'; // Import auth hook
 
 interface SupportTicketFormProps {
@@ -137,7 +137,7 @@ export function SupportTicketForm({
 							Ticket Submitted Successfully
 						</h3>
 						<p className='text-sm text-green-700 mt-1'>
-							Your support request has been received. We'll get
+							Your support request has been received. We&apos;ll get
 							back to you soon!
 						</p>
 					</div>

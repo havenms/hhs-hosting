@@ -25,7 +25,7 @@ export function PreBuildBanner() {
 					Welcome to HHS Hosting!
 				</CardTitle>
 				<CardDescription>
-					Let's get started building your WordPress site.
+					Let&apos;s get started building your WordPress site.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className='pt-6'>

@@ -1,4 +1,4 @@
-import { Check, Shield, Globe, Clock, Zap, Activity, Lock } from 'lucide-react';
+import { Shield, Globe, Clock, Zap, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
 	Card,
